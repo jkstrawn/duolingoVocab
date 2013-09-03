@@ -1,0 +1,65 @@
+<html>
+<head>
+	<title>Test Vocab</title>
+</head>
+<body>
+test
+</br>
+<input id="guess"></input>
+<button id="makeGuess">Guess!</button>
+</body>
+<script type="text/javascript">
+	console.log("RUNNIGN");
+	var vocabList = [];
+	var currentWord = 0;
+
+	document.getElementById("makeGuess").addEventListener("click", function() {
+		console.log("clikc");
+	});
+	document.addEventListener("keypress", function(e){
+		if (e.keyCode == 13) {
+			submitWord();
+		}
+	});
+
+	addWord("dolphin", ["squee", "bubble"], "Noun");
+	addWord("wet", ["squish", "drip"], "Adjective");
+	addWord("shark", ["chomp", "crunch"], "Noun");
+	addWord("manatee", ["rwoo", "moo"], "Noun");
+
+	displayWord(currentWord);
+
+	function submitWord() {
+		var guessDiv = document.getElementById("guess");
+		if (guessDiv.value == vocabList[currentWord].word) {
+			guessDiv.value = "";
+			currentWord++;
+			displayWord();
+			console.log("correct!")
+		}
+	}
+
+	function displayWord() {
+		var wordData = vocabList[currentWord];
+
+		var html = "<h2>" + wordData.word + "</h2>";
+		html += "<p>" + wordData.type + "<p>";
+
+		var div = document.createElement('div');
+		div.innerHTML = html;
+		document.body.appendChild(div);
+	}
+
+	function addWord(word, hints, type) {
+		var wordData = {};
+		wordData.hints = hints;
+		wordData.word = word;
+		wordData.last = new Date().getTime();
+		wordData.type = type;
+		wordData.isNew = true;
+
+		vocabList.push(wordData);		
+	}
+
+</script>
+</html>

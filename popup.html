@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Getting Started Extension's Popup</title>
+		<style>
+			body {
+				min-width: 357px;
+				overflow-x: hidden;
+			}
+
+			img {
+				margin: 5px;
+				border: 2px solid black;
+				vertical-align: middle;
+				width: 75px;
+				height: 75px;
+			}
+
+			#userHint {
+				width: 200px;
+				height: 70px;
+				border: 1px solid black;
+				background: #d0d0d0;
+				visibility: hidden;
+			}
+		</style>
+
+		<script src="jquery.js"></script>
+		<script src="background.js"></script>
+	</head>
+	<body>
+		<p>Duolingo Vocab</p>
+		<button id="update">Update Vocab</button>
+		<button id="clear">Clear Vocab</button>
+		<button id="save">Save Words</button>
+		<button id="showVocab">Show All Vocab</button>
+		<button id="showHints">Show Hints</button>
+		<button id="addHint">Add Hint</button>
+
+		<div id="alert"></div>
+		<div id="word"></div>
+		<input id="guess"></input>
+		<div id="hints"></div>
+		<div id="userHint" visible="false">
+			New Hint to Add
+			<br>
+			<input id="newHint"></input>
+		</div>
+	</body>
+</html>
+
