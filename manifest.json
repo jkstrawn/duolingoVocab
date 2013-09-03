@@ -7,7 +7,7 @@
 
 
   "browser_action": {
-    "default_icon": "duolingo.png",
+    "default_icon": "img/duolingo.png",
     "default_popup": "popup.html"
   },
    "permissions": [ 
@@ -16,7 +16,7 @@
     	"*://*.duolingo.com/*" 
     ],
 	"icons": {
-		"48": "icon48.png",
-		"128": "icon128.png" 
+		"48": "img/icon48.png",
+		"128": "img/icon128.png" 
 	}
 }
