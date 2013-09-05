@@ -1,9 +1,26 @@
 var vocabList = [];
+var currentWord = 0;
+
 var newVocab = [];
 var duplicates = [];
 var vocab_count = 0;
 var ajaxQueries = 0;
-var currentWord = 0;
+var ctrlDown = false;
+var accents = {
+	97:  225,	// a -> á
+	225: 97,	// á -> a
+	101: 233,	// e -> é
+	233: 101,	// é -> e
+	105: 237,	// i -> í
+	237: 105,	// í -> i
+	111: 243,	// o -> ó
+	243: 111,	// ó -> o
+	117: 250,	// u -> ú
+	250: 252,	// ú -> ü
+	252: 117,	// ü -> u
+	110: 241,	// n -> ñ
+	241: 110	// ñ -> n
+};
 
 chrome.storage.local.get("vocabList", function(items) {
 	if (items) {
@@ -40,12 +57,35 @@ $(document).ready(function() {
 		openUserHintDiv();
 	});
 
-	document.addEventListener("keypress", function(e){
+	document.addEventListener("keypress", function(e) {
 		if (e.keyCode == 13) {
 			submitGuess();
 		}
+
+		if (e.keyCode == 96) {
+			addAccentToLastCharacter();
+			e.preventDefault();
+		}
 	});
 });
+
+function addAccentToLastCharacter() {
+	var div = document.getElementById('guess');
+	var inputText = div.value;
+	var lastLetter = inputText.charCodeAt(inputText.length - 1);
+	var accentCharCode = accents[lastLetter]
+	var newLetter = String.fromCharCode(accentCharCode);
+
+	if (accentCharCode) {
+		inputText = replaceLastCharacter(inputText, newLetter);
+	}
+
+	div.value = inputText;
+}
+
+function replaceLastCharacter(text, character) {
+	return text.substr(0, text.length - 1) + character;
+}
 
 function saveVocab() {
 	var obj = {"vocabList": vocabList};
@@ -192,11 +232,14 @@ function checkForBadHints() {
 
 		var hints = vocabList[i].hints;
 		for (var _hint = hints.length - 1; _hint >= 0; _hint--) {
+			if (hints[_hint].indexOf("!") != -1) {
+				hints.splice(_hint, 1);
+			} else
 			if (hints[_hint].indexOf("(you-formal)") != -1 ||
 				hints[_hint].indexOf("(I)") != -1 ||
 				hints[_hint].indexOf("(he/she/it)") != -1 ||
-				hints[_hint].indexOf("!") != -1) {
-				hints.splice(_hint, 1);
+				hints[_hint].indexOf("(I/he/she/it/you)") != -1) {
+				hints[_hint] = hints[_hint].slice(hints[_hint].indexOf(")") + 2);
 			}
 		};
 
@@ -309,38 +352,52 @@ function displayNewWordAlert() {
 	div.innerHTML += "<p>You have " + numOfNewWord + " new words!</p>";
 }
 
-function displayWord() {
-	var wordData = vocabList[currentWord];
-
-	var html = "<h2>" + wordData.word + "</h2>";
-	html += "<p>" + wordData.type + "<p>";
-
-	var div = document.getElementById('word');
-	div.innerHTML = html;
-}
-
 function submitGuess() {
-	if ($("#newHint").is(":focus")) {
+	if (doesInputHaveFocus("newHint")) {
 		submitNewUserHint();
 		return;
 	}
 
 	var guessDiv = document.getElementById("guess");
-	for (var i = 0; i < vocabList[currentWord].hints.length; i++) {
-		if (vocabList[currentWord].hints[i] == guessDiv.value) {
-			guessDiv.value = "";
-			submitCorrectGuess();
+	if (isGuessCorrect(guessDiv.value)) {
+		guessDiv.value = "";
+		submitCorrectGuess();
+	}
+}
+
+function isGuessCorrect(guess) {
+	var hints = vocabList[currentWord].hints;
+	var counter = 0;
+	for (var i = 0; i < hints.length; i++) {
+		counter++;
+		if (counter > 100) {
+			return false;
 		}
+		if (hints[i].indexOf('(') != -1) {
+			hints.push(hints[i].replace(/ *\([^)]*\) */g, ""));
+		}
+		if (hints[i].substring(0, 4) == "(to)") {
+			hints.push("to " + hints[i].slice(5));
+		}
+		console.log(i + ": " + hints[i] + " vs " + guess);
+		if (hints[i] == guess) {
+			return true;
+		}		
 	};
+	return false;
+}
+
+function doesInputHaveFocus(id) {
+	return $("#" + id).is(":focus");
 }
 
 function submitCorrectGuess() {
-	saveWord();
+	updateWord();
 	setNextWord();
 	displayWord();
 }
 
-function saveWord() {
+function updateWord() {
 	vocabList[currentWord].isNew = false;
 	vocabList[currentWord].last = new Date().getTime();
 	saveVocab();
@@ -353,6 +410,16 @@ function setNextWord() {
 			return;
 		}
 	};
+}
+
+function displayWord() {
+	var wordData = vocabList[currentWord];
+
+	var html = "<h2>" + wordData.word + "</h2>";
+	html += "<p>" + wordData.type + "<p>";
+
+	var div = document.getElementById('word');
+	div.innerHTML = html;
 }
 
 function openUserHintDiv() {
