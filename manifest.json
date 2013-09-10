@@ -1,22 +1,30 @@
 {
-	"name": "Duolingo Enhancement Suite",
-	"version": "4.3.0.2",
-	"manifest_version": 2,
-	"minimum_chrome_version": "20.0",
-	"description": "Duolingo Enhancement Suite - a group of enhancements for browsing Duolingo",
-
-
-  "browser_action": {
-    "default_icon": "img/duolingo.png",
-    "default_popup": "popup.html"
+  "name": "Duolingo Extension",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "This extension was created with the awesome extensionizr.io",
+  "homepage_url": "http://extensionizr.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
-   "permissions": [ 
-    	"webRequest",
- 		"storage",
-    	"*://*.duolingo.com/*" 
+  "default_locale": "en",
+  "background": {
+    "scripts": [
+      "src/bg/background.js"
     ],
-	"icons": {
-		"48": "img/icon48.png",
-		"128": "img/icon128.png" 
-	}
+    "persistent": true
+  },
+  "options_page": "src/options_custom/index.html",
+  "browser_action": {
+    "default_icon": "icons/icon19.png",
+    "default_title": "browser action demo",
+    "default_popup": "src/browser_action/browser_action.html"
+  },
+  "permissions": [
+    "webRequest",
+    "storage",
+    "*://*.duolingo.com/*"
+  ]
 }
