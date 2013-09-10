@@ -5,7 +5,6 @@ var newVocab = [];
 var duplicates = [];
 var vocab_count = 0;
 var ajaxQueries = 0;
-var ctrlDown = false;
 var accents = {
 	97:  225,	// a -> á
 	225: 97,	// á -> a

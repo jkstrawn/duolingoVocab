@@ -1,0 +1,18 @@
+<div data-ng-init="init()">
+	<p>Practicing</p>
+	<a href="#">Back to Home</a>
+	<input type="checkbox"
+		ng-model="guessesInEnglish"
+		ng-change="changeGuessLanguage()">
+		Change Guess Language
+	</input>
+	<div class="alert-box">{{ message }}</div>
+	<div ng-show="showWord">
+		<div>{{word.title}}: {{ word.show }}</div>
+		<div>Type: {{ word.type }} </div>
+		<input type="text" ng-model="input" ng-enter ng-style="styles">
+	</div>
+	<div ng-show="showCorrectWord">
+		<div>Correct: {{ word.correct }}</div>
+	</div>
+</div>

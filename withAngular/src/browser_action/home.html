@@ -1,15 +1,13 @@
 <div id="home" class="row" data-ng-init="init()">
-  <div class="large-6 large-offset-3">
-    <h2>Welcome to the {{ title }} page!</h2>
+	<h2>Welcome to the {{ title }} page!</h2>
 
-    <div class="alert-box">{{ message }}</div>
+	<a href="#/practice">Practice</a>
+	<a href="#/vocab">View Vocab</a>
+	<button class="button large expand radius" 
+		ng-click="update()" data-ng-disabled="queryInProcess">Update Vocab</button>
+	<button class="button large expand radius" 
+		ng-click="reset()" data-ng-disabled="queryInProcess">Reset Vocab</button>
 
-    <div>Current Word: {{currentWord}} </div>
-
-    <div class="row">
-      <div class="large-12 columns">
-        <button class="button large expand radius" ng-click="save()">Log Out</button>
-      </div>
-    </div>
-  </div>
+	<div class="alert-box">{{ message }}</div>
 </div>
+
