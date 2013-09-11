@@ -11,10 +11,15 @@ app.config( function($routeProvider) {
 
 app.controller("HomeController", function($scope, VocabularyManager, Vocab, Accents, DuolingoAPI) {
 
-	$scope.queryInProcess = false;
+	$scope.queryInProgress = false;
+	$scope.numberOfWordsToStudy = 0;
 
 	$scope.init = function() {
-		VocabularyManager.init($scope);
+		if (Vocab.vocabList.length == 0) {
+			VocabularyManager.init($scope.setNumberOfWordsToStudy);
+		} else {
+			$scope.numberOfWordsToStudy = VocabularyManager.getNumberOfWordsToStudy();
+		}
 	};
 
 	$scope.reset = function() {
@@ -23,14 +28,36 @@ app.controller("HomeController", function($scope, VocabularyManager, Vocab, Acce
 	};
 
 	$scope.update = function() {
-		$scope.queryInProcess = true;
+		$scope.queryInProgress = true;
+		$scope.message = "";
 		DuolingoAPI.getAnyNewVocab($scope.queryEnded);
 	};
 
 	$scope.queryEnded = function(numberOfWords) {
-		console.log("query enede: " + numberOfWords);
-		$scope.queryInProcess = false;
+		if (numberOfWords == 0) {
+			$scope.message = "There were no new words";
+		} else {
+			$scope.message = "There were " + numberOfWords + " new words added";
+		}
+		$scope.queryInProgress = false;
 		$scope.$apply();
+	};
+
+	$scope.setNumberOfWordsToStudy = function(number) {
+		console.log(Vocab.vocabList);
+		$scope.numberOfWordsToStudy = number;
+		$scope.$apply();
+	};
+
+	$scope.setToNotNew = function() {
+		for (var i = Vocab.vocabList.length - 1; i >= 0; i--) {
+			if (Vocab.vocabList[i].isNew) {
+				Vocab.vocabList[i].isNew = false;
+				Vocab.vocabList[i].level = 1;
+				Vocab.vocabList[i].toStudy = false;
+			}
+		};
+		VocabularyManager.save();
 	};
 });
 
@@ -72,21 +99,23 @@ app.controller("PracticeController", function($scope, VocabularyManager, Vocab, 
 	};
 
 	$scope.submitGuess = function() {
-		if (!$scope.input) return;
+		if (!$scope.input) {
+			console.log("enter");
+			return;
+		}
 
 		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
 			$scope.input = "";
-			VocabularyManager.updateWord();
+			VocabularyManager.updateWord(!$scope.showCorrectWord);
 			VocabularyManager.setNextNewWord($scope.setNextNewWord);
 		} else {
-			$scope.incorrectGuess();
+			$scope.processIncorrectGuess();
 			$scope.styles = {outlineColor: "red"};
 			$scope.$apply();
 		}
 	};
 
 	$scope.setNextNewWord = function(isNew) {
-		console.log("starting a new word: " + isNew);
 		if (isNew) {
 			$scope.changeCurrentWord();
 			$scope.practicingWord = true;
@@ -132,23 +161,39 @@ app.controller("PracticeController", function($scope, VocabularyManager, Vocab, 
 		return word;
 	},
 
-	$scope.incorrectGuess = function() {
+	$scope.processIncorrectGuess = function() {
 		$scope.showCorrectWord = true;
 	}
 });
 
-app.service("VocabularyManager", function(Vocab) {
+app.service("VocabularyManager", function(Vocab, Intervals) {
 	return {
-		init: function() {
+		init: function(callback) {
+			var that = this;
+
 			chrome.storage.local.get("vocabList", function(items) {
 				Vocab.vocabList = items.vocabList;
+				var numberOfWordsToStudy = 0;
 
 				if (!Vocab.vocabList) {
 					Vocab.vocabList = [];
+				} else {
+					that.calculateWordStudyTimes();
+					numberOfWordsToStudy = that.getNumberOfWordsToStudy();
 				}
 
-				console.log(Vocab.vocabList);
+				callback(numberOfWordsToStudy);
 			});
+		},
+
+		getNumberOfWordsToStudy: function() {
+			var number = 0;
+			for (var i = Vocab.vocabList.length - 1; i >= 0; i--) {
+				if (Vocab.vocabList[i].toStudy) {
+					number++;
+				}
+			};
+			return number;
 		},
 
 		save: function() {
@@ -165,6 +210,15 @@ app.service("VocabularyManager", function(Vocab) {
 					return;
 				}
 			};
+
+			for (var i = 0; i < Vocab.vocabList.length; i++) {
+				if (Vocab.vocabList[i].toStudy) {
+					Vocab.setWordIndex(i);
+					callback(true);
+					return;
+				}
+			};
+
 			callback(false);
 		},
 
@@ -195,10 +249,40 @@ app.service("VocabularyManager", function(Vocab) {
 			return (guess == Vocab.currentWord.word);
 		},
 
-		updateWord: function() {
+		calculateWordStudyTimes: function() {
+			for (var i = Vocab.vocabList.length - 1; i >= 0; i--) {
+				var level = Vocab.vocabList[i].level;
+				var now = new Date().getTime();
+				var last = Vocab.vocabList[i].last;
+				var interval = now - last;
+				if (interval > Intervals.intervals[level]) {
+					Vocab.vocabList[i].toStudy = true;
+				}
+			};
+		},
+
+		updateWord: function(firstGuess) {
 			Vocab.currentWord.isNew = false;
-			Vocab.currentWord.last = new Date().getTime();
+			var now = new Date().getTime();
+			if (firstGuess) {
+				Vocab.currentWord.toStudy = false;
+				var level = Vocab.currentWord.level;
+				var actualInterval = now - Vocab.currentWord.last;
+				var expectedInterval = Intervals.intervals[level];
+				if (actualInterval > expectedInterval) {
+					Vocab.currentWord.level++;
+				}
+			} else {
+				this.moveCurrentWordToEndOfList();
+			}
+			Vocab.currentWord.last = now;
+			console.log("Level: " + Vocab.currentWord.level + " -- tostudy: " + Vocab.currentWord.toStudy);
 			this.save();
+		},
+
+		moveCurrentWordToEndOfList: function() {
+			Vocab.vocabList.splice(Vocab.currentWordIndex, 1);
+			Vocab.vocabList.push(Vocab.currentWord);
 		}
 	};
 });
@@ -221,6 +305,8 @@ app.factory("Vocab", function() {
 			wordData.last = new Date().getTime();
 			wordData.type = type;
 			wordData.isNew = true;
+			wordData.toStudy = true;
+			wordData.level = 0;
 
 			this.vocabList.push(wordData);
 		},
@@ -254,6 +340,19 @@ app.factory("Accents", function() {
 		241: 110    // ñ -> n
 	};
 	return {accents: accents};
+});
+
+app.factory("Intervals", function() {
+	var intervals = [
+	//  Mil,  Sec, Min, Hour, Days
+		0,
+		1000 * 60 * 60,
+		1000 * 60 * 60 * 24,
+		1000 * 60 * 60 * 24 * 5,
+		1000 * 60 * 60 * 24 * 25,
+		1000 * 60 * 60 * 24 * 90
+	];
+	return {intervals: intervals};
 });
 
 app.directive('ngEnter', function () {

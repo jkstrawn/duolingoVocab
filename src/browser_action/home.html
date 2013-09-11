@@ -2,11 +2,28 @@
 	<h2>Welcome to the {{ title }} page!</h2>
 
 	<a href="#/practice">Practice</a>
+	<br>
 	<a href="#/vocab">View Vocab</a>
-	<button class="button large expand radius" 
-		ng-click="update()" data-ng-disabled="queryInProcess">Update Vocab</button>
-	<button class="button large expand radius" 
-		ng-click="reset()" data-ng-disabled="queryInProcess">Reset Vocab</button>
+	<br>
+	<button 
+		ng-click="update()" 
+		data-ng-disabled="queryInProgress">Update Vocab
+	</button>
+	<br>
+	<button 
+		ng-click="reset()" 
+		data-ng-disabled="queryInProgress">Reset Vocab
+	</button>
+	<br>
+	<button 
+		ng-click="setToNotNew()" 
+		data-ng-disabled="queryInProgress">Make Words not new
+	</button>
+	<br>
+	<div>You have {{ numberOfWordsToStudy }} words to study</div>
+	<div ng-show="queryInProgress">
+		<img src="../../css/img/loading.gif">
+	</div>
 
 	<div class="alert-box">{{ message }}</div>
 </div>
