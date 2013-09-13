@@ -2,25 +2,30 @@
 	<h2>Practice</h2>
 	<button class="btn icon-back" ng-click="go('/')">Back</button>
 	<br>
-	<div id="toggleBubble">
-		<div id="toggleLeft">
-			<button id="toggleHintLanguage" ng-click="changeGuessLanguage()">Change Guess Language</button>			
-		</div>
-		<div id="toggleRight">
-			<span ng-switch on="guessesInEnglish">
-				<span ng-switch-when="true">English -> Spanish</span>
-				<span ng-switch-when="false">Spanish -> English</span>
-			</span>
-		</div>
-	</div>
 
 	<div id="practiceWord">
+
+		<div id="toggleBubble">
+			<div id="toggleLeft">
+				<button id="toggleHintLanguage" ng-click="changeGuessLanguage()">Change Guess Language</button>
+			</div>
+			<div id="toggleRight">
+				<span ng-switch on="guessesInEnglish">
+					<span ng-switch-when="true">English -> Spanish</span>
+					<span ng-switch-when="false">Spanish -> English</span>
+				</span>
+			</div>
+		</div>
+
 		<div ng-show="showWord">
 			<div>{{word.title}}: {{ word.show }}</div>
 			<div>Type: {{ word.type }} </div>
 
 			<form ng-app> 
-				<input type="text" ng-model="input" ng-style="styles" focus-me="focusInput"/>
+				<input type="text" class="duolingo-input"
+					ng-disabled="showCorrectWord"
+					ng-class="inputClass"
+					ng-model="input" ng-style="styles" focus-me="focusInput"/>
 			</form>
 		</div>
 		<div ng-show="showCorrectWord">

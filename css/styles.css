@@ -9,6 +9,41 @@
 	font-style: normal;
 }
 
+.correct, .correct:disabled {
+	background: #edf8da;
+	border: 1px solid #c2d799;
+	color: #5d9400;
+	-webkit-user-select: none;
+	user-select: none;  
+}
+
+.duolingo-input {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	color: #404040;
+	padding: 8px 50px 8px 8px;
+	height: 20px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+
+	-webkit-transition:border linear .2s, box-shadow linear .2s;
+	-moz-transition:border linear .2s, box-shadow linear .2s;
+	-ms-transition:border linear .2s, box-shadow linear .2s;
+	-o-transition:border linear .2s, box-shadow linear .2s;
+	transition:border linear .2s, box-shadow linear .2s;
+	-webkit-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1);
+	box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1)
+}
+
+.duolingo-input:focus {
+	outline:none;
+	border-color:#6cac02;
+	-webkit-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(108, 172, 2, 0.6);
+	-moz-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(108, 172, 2, 0.6);
+	box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(108, 172, 2, 0.6)
+}
+
 #rightInfo {
 	float: right;
 	height: 200px;
@@ -27,9 +62,9 @@
 #toggleBubble {
 	width: 400px;
 	height: 30px;
-	margin: 10px 5px 10px 30px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
+	margin-bottom: 10px;
 }
 
 #toggleLeft {
@@ -86,12 +121,15 @@
 
 #practiceWord {
 	width: 400px;
-	height: 100px;
-	background: rgba(0, 0, 0, .1);
+	height: 200px;
+	background: white;
 	border: 1px solid #222;
 	margin: 5px 30px;
 	padding: 10px;
 	border-radius: 5px;
+	color: #404040;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 18px;
 }
 
 #line-separator {
@@ -146,7 +184,7 @@ body {
 	transition: all 0.3s;
 
 	background: #161457;
-	background-image: linear-gradient( #1A1863, #161457);
+	background-image: linear-gradient( #1F1D73, #161457);
 	color: #eee;
 }
 

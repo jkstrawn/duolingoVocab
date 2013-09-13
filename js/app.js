@@ -90,6 +90,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.word = {title: "test", show: "test2", type: "Noun"};
 	$scope.styles = {outlineColor: "rgb(91, 157, 217)"};
 	$scope.showCorrectWord = false;
+	$scope.inputClass = "";
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -125,20 +126,24 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	};
 
 	$scope.submitGuess = function() {
+		console.log("enter..");
 		if (!$scope.input) {
 			console.log("enter");
 			return;
 		}
 
+		$scope.inputClass = "correct";
+		$scope.showCorrectWord = false;
+
 		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
-			$scope.input = "";
 			VocabularyManager.updateWord(!$scope.showCorrectWord);
-			VocabularyManager.setNextNewWord($scope.setNextNewWord);
+			//VocabularyManager.setNextNewWord($scope.setNextNewWord);
 		} else {
 			$scope.processIncorrectGuess();
 			$scope.styles = {outlineColor: "red"};
-			$scope.$apply();
 		}
+
+		$scope.$apply();
 	};
 
 	$scope.setNextNewWord = function(isNew) {
@@ -157,6 +162,8 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		$scope.word = $scope.generateWordData();
 		$scope.styles = {outlineColor: "rgb(91, 157, 217)"};
 		$scope.showCorrectWord = false;
+		$scope.inputClass = "";
+		$scope.input = "";
 	},
 
 	$scope.generateWordData = function() {
