@@ -9,10 +9,15 @@ app.config( function($routeProvider) {
 	$routeProvider.otherwise({ redirectTo: "/home"});
 });
 
-app.controller("HomeController", function($scope, VocabularyManager, Vocab, Accents, DuolingoAPI) {
+app.controller("HomeController", function($scope, $location, VocabularyManager, Vocab, Accents, DuolingoAPI) {
 
 	$scope.queryInProgress = false;
 	$scope.numberOfWordsToStudy = 0;
+
+
+	$scope.go = function ( path ) {
+		$location.path( path );
+	};
 
 	$scope.init = function() {
 		if (Vocab.vocabList.length == 0) {
@@ -25,21 +30,31 @@ app.controller("HomeController", function($scope, VocabularyManager, Vocab, Acce
 	$scope.reset = function() {
 		Vocab.vocabList = [];
 		VocabularyManager.save();
+		$scope.numberOfWordsToStudy = VocabularyManager.getNumberOfWordsToStudy();
 	};
 
 	$scope.update = function() {
 		$scope.queryInProgress = true;
 		$scope.message = "";
+		$scope.notificationClass = "";
 		DuolingoAPI.getAnyNewVocab($scope.queryEnded);
 	};
 
 	$scope.queryEnded = function(numberOfWords) {
+
+		if (numberOfWords == -1) {
+			$scope.notificationClass = "notification color-red";
+			$scope.message = "Duolingo not responding. Try again later.";
+		} else
 		if (numberOfWords == 0) {
-			$scope.message = "There were no new words";
+			$scope.notificationClass = "notification color-yellow";
+			$scope.message = "There were no new words.";
 		} else {
-			$scope.message = "There were " + numberOfWords + " new words added";
+			$scope.notificationClass = "notification color-green";
+			$scope.message = "There were " + numberOfWords + " new words added.";
 		}
 		$scope.queryInProgress = false;
+		$scope.numberOfWordsToStudy = VocabularyManager.getNumberOfWordsToStudy();
 		$scope.$apply();
 	};
 
@@ -61,7 +76,13 @@ app.controller("HomeController", function($scope, VocabularyManager, Vocab, Acce
 	};
 });
 
-app.controller("PracticeController", function($scope, VocabularyManager, Vocab, Accents) {
+app.controller("VocabController", function($scope, $location) {
+	$scope.go = function ( path ) {
+		$location.path( path );
+	};
+});
+
+app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents) {
 	$scope.showWord = false;
 	$scope.input = "";
 	$scope.practicingWord = false;
@@ -69,6 +90,10 @@ app.controller("PracticeController", function($scope, VocabularyManager, Vocab, 
 	$scope.word = {title: "test", show: "test2", type: "Noun"};
 	$scope.styles = {outlineColor: "rgb(91, 157, 217)"};
 	$scope.showCorrectWord = false;
+
+	$scope.go = function ( path ) {
+		$location.path( path );
+	};
 
 	$scope.init = function() {
 		console.log("starting!");
@@ -80,6 +105,7 @@ app.controller("PracticeController", function($scope, VocabularyManager, Vocab, 
 	};
 
 	$scope.changeGuessLanguage = function() {
+		$scope.guessesInEnglish = !$scope.guessesInEnglish;
 		this.changeCurrentWord();
 	};
 
@@ -370,4 +396,14 @@ app.directive('ngEnter', function () {
             }
         });
     };
+});
+
+app.directive('focusMe', function($timeout) {
+	return {
+		link: function(scope, element, attrs) {
+			scope.$watch(attrs.focusMe, function(value) {
+				element[0].focus();
+			});
+		}
+	};
 });

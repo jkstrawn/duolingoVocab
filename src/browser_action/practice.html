@@ -1,22 +1,30 @@
 <div data-ng-init="init()" ng-enter>
-	<p>Practicing</p>
-	<a href="#">Back to Home</a>
+	<h2>Practice</h2>
+	<button class="btn icon-back" ng-click="go('/')">Back</button>
 	<br>
-	<input type="checkbox"
-		ng-model="guessesInEnglish"
-		ng-change="changeGuessLanguage()">
-		Change Guess Language
-	</input>
-	<div class="alert-box">{{ message }}</div>
-	<div ng-show="showWord">
-		<div>{{word.title}}: {{ word.show }}</div>
-		<div>Type: {{ word.type }} </div>
-
-		<form ng-app> 
-			<input type="text" ng-model="input" ng-style="styles"/>
-		</form>
+	<div id="toggleBubble">
+		<div id="toggleLeft">
+			<button id="toggleHintLanguage" ng-click="changeGuessLanguage()">Change Guess Language</button>			
+		</div>
+		<div id="toggleRight">
+			<span ng-switch on="guessesInEnglish">
+				<span ng-switch-when="true">English -> Spanish</span>
+				<span ng-switch-when="false">Spanish -> English</span>
+			</span>
+		</div>
 	</div>
-	<div ng-show="showCorrectWord">
-		<div>Correct: {{ word.correct }}</div>
+
+	<div id="practiceWord">
+		<div ng-show="showWord">
+			<div>{{word.title}}: {{ word.show }}</div>
+			<div>Type: {{ word.type }} </div>
+
+			<form ng-app> 
+				<input type="text" ng-model="input" ng-style="styles" focus-me="focusInput"/>
+			</form>
+		</div>
+		<div ng-show="showCorrectWord">
+			<div>Correct: {{ word.correct }}</div>
+		</div>
 	</div>
 </div>

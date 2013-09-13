@@ -22,7 +22,12 @@ angular.module("superapp")
 					} else {
 						that.callback(0);
 					}
-				}
+				},
+				error: function(){
+					// will fire when timeout is reached
+					that.callback(-1);
+				},
+				timeout: 3000
 			});
 		},
 
@@ -39,7 +44,11 @@ angular.module("superapp")
 					url: "http://www.duolingo.com/words?page="+i,
 					success: function(response) {
 						that.processVocabPage(response);
-					}
+					},
+					error: function(){
+						that.callback(-1);
+					},
+					timeout: 3000
 				});	
 			}
 		},
@@ -109,7 +118,11 @@ angular.module("superapp")
 				url:  encodeURI(query),
 				success: function(response) {
 					that.processHints(response);
-				}
+				},
+				error: function(){
+					that.callback(-1);
+				},
+				timeout: 3000
 			});
 		},
 
@@ -190,7 +203,11 @@ angular.module("superapp")
 				url: that.constructSingleHintURI(index),
 				success: function(response) {
 					that.addHintForSingleWord(response, index);
-				}
+				},
+				error: function(){
+					that.callback(-1);
+				},
+				timeout: 3000
 			});
 		},
 

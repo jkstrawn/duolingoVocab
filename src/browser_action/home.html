@@ -1,30 +1,36 @@
 <div id="home" class="row" data-ng-init="init()">
-	<h2>Welcome to the {{ title }} page!</h2>
+	<h2>Duolingo Vocabulary Manager</h2>
 
-	<a href="#/practice">Practice</a>
-	<br>
-	<a href="#/vocab">View Vocab</a>
-	<br>
-	<button 
+	<div id="rightInfo">
+		<div id="line-separator"></div>
+		<div id="numberOfWords">{{ numberOfWordsToStudy }}</div>
+		<div id="numberText">
+			<p>words to study</p>
+		</div>
+	</div>
+	<button class="btn icon-pencil" ng-click="go('/practice')">Practice</button>
+	<button class="btn icon-book" ng-click="go('/vocab')">View Vocab</button>
+	<button
+		class="btn icon-box-add" 
 		ng-click="update()" 
 		data-ng-disabled="queryInProgress">Update Vocab
 	</button>
-	<br>
-	<button 
+	<button
+		class="btn icon-warning" 
 		ng-click="reset()" 
 		data-ng-disabled="queryInProgress">Reset Vocab
 	</button>
-	<br>
-	<button 
+	<!--
+	<button
 		ng-click="setToNotNew()" 
 		data-ng-disabled="queryInProgress">Make Words not new
 	</button>
-	<br>
-	<div>You have {{ numberOfWordsToStudy }} words to study</div>
+-->
+
 	<div ng-show="queryInProgress">
 		<img src="../../css/img/loading.gif">
 	</div>
 
-	<div class="alert-box">{{ message }}</div>
+	<div class="alert-box" ng-class="notificationClass">{{ message }}</div>
 </div>
 
