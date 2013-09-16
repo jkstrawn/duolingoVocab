@@ -18,8 +18,8 @@
 		</div>
 
 		<div ng-show="practicingWord">
-			<div>{{word.title}}: {{ word.show }}</div>
-			<div>Type: {{ word.type }} </div>
+			<div id="word-type">{{ word.type }}</div>
+			<div id="word">{{ word.show }}</div>
 
 			<input type="text" class="duolingo-input"
 				ng-disabled="showCorrectWord"

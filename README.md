@@ -15,3 +15,4 @@ A Chrome extension to assist in learning vocabulary on duolingo.com
 + Add support for more languages
 + Make pretty
 + Allow user to set next study interval
++ Save language guessing preference
