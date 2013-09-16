@@ -83,14 +83,13 @@ app.controller("VocabController", function($scope, $location) {
 });
 
 app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents) {
-	$scope.showWord = false;
 	$scope.input = "";
 	$scope.practicingWord = false;
 	$scope.guessesInEnglish = true;
 	$scope.word = {title: "test", show: "test2", type: "Noun"};
-	$scope.styles = {outlineColor: "rgb(91, 157, 217)"};
 	$scope.showCorrectWord = false;
 	$scope.inputClass = "";
+	$scope.isWrongGuess = false;
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -99,10 +98,6 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.init = function() {
 		console.log("starting!");
 		VocabularyManager.setNextNewWord($scope.setNextNewWord);
-
-		if ($scope.practicingWord) {
-			$scope.showWord = true;
-		}
 	};
 
 	$scope.changeGuessLanguage = function() {
@@ -126,27 +121,34 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	};
 
 	$scope.submitGuess = function() {
-		console.log("enter..");
-		if (!$scope.input) {
-			console.log("enter");
+
+		if ($scope.input == "") {
 			return;
 		}
 
-		$scope.inputClass = "correct";
-		$scope.showCorrectWord = false;
-
-		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
-			VocabularyManager.updateWord(!$scope.showCorrectWord);
-			//VocabularyManager.setNextNewWord($scope.setNextNewWord);
-		} else {
-			$scope.processIncorrectGuess();
-			$scope.styles = {outlineColor: "red"};
+		if ($scope.showCorrectWord) {
+			VocabularyManager.setNextNewWord($scope.setNextNewWord);
+			return;
 		}
 
-		$scope.$apply();
+		$scope.showCorrectWord = true;
+
+		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
+			$scope.inputClass = "correct";
+		} else {
+			$scope.isWrongGuess = true;
+			$scope.inputClass = "incorrect";
+		}
+		VocabularyManager.updateWord(!$scope.isWrongGuess);
+
+		if(!$scope.$$phase) {
+			$scope.$apply();
+		}
 	};
 
 	$scope.setNextNewWord = function(isNew) {
+
+			console.log("change word");
 		if (isNew) {
 			$scope.changeCurrentWord();
 			$scope.practicingWord = true;
@@ -160,10 +162,10 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 
 	$scope.changeCurrentWord = function() {
 		$scope.word = $scope.generateWordData();
-		$scope.styles = {outlineColor: "rgb(91, 157, 217)"};
 		$scope.showCorrectWord = false;
 		$scope.inputClass = "";
 		$scope.input = "";
+		$scope.isWrongGuess = false;
 	},
 
 	$scope.generateWordData = function() {
@@ -192,10 +194,6 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 			correct: Vocab.currentWord.hints[0]
 		};
 		return word;
-	},
-
-	$scope.processIncorrectGuess = function() {
-		$scope.showCorrectWord = true;
 	}
 });
 
@@ -392,9 +390,9 @@ app.directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keypress", function (event) {
             if(event.which === 13) {
-                scope.submitGuess();
+                //scope.submitGuess();
 
-                event.preventDefault();
+                //event.preventDefault();
             } else
             if (event.which === 96) {
                 scope.addAccentToLastCharacter();
@@ -413,4 +411,10 @@ app.directive('focusMe', function($timeout) {
 			});
 		}
 	};
+});
+
+$( window ).bind('keypress', function(e){
+	if ( e.keyCode == 13 ) {
+		$( "#invisible" ).click();
+	}
 });

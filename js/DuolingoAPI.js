@@ -193,6 +193,7 @@ angular.module("superapp")
 					}
 				}
 			}
+			this.isHintQueryComplete();
 		},
 
 		setNewHintForWord: function(index) {

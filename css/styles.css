@@ -13,8 +13,27 @@
 	background: #edf8da;
 	border: 1px solid #c2d799;
 	color: #5d9400;
-	-webkit-user-select: none;
-	user-select: none;  
+	box-shadow: none;
+}
+
+.incorrect, .incorrect:disabled {
+	background: #ffecec;
+	border: 1px solid #ffa8a8;
+	color: black;
+	box-shadow: none;
+}
+
+.correction {
+	//background: #ffecec;
+	border: 1px solid #999;
+	color: #999;
+	box-shadow: none;
+}
+
+.correction-text {
+	color: #AAA;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 11px;
 }
 
 .duolingo-input {
@@ -26,14 +45,12 @@
 	border: 1px solid #ccc;
 	border-radius: 3px;
 
-	-webkit-transition:border linear .2s, box-shadow linear .2s;
-	-moz-transition:border linear .2s, box-shadow linear .2s;
-	-ms-transition:border linear .2s, box-shadow linear .2s;
-	-o-transition:border linear .2s, box-shadow linear .2s;
 	transition:border linear .2s, box-shadow linear .2s;
-	-webkit-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1);
-	-moz-box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1);
-	box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1)
+	box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#invisible {
+	visibility:hidden;
 }
 
 .duolingo-input:focus {
@@ -47,7 +64,7 @@
 #rightInfo {
 	float: right;
 	height: 200px;
-	width: 200px;
+	width: 240px;
 }
 
 #numberOfWords {
@@ -57,6 +74,15 @@
 	font-family: 'Denk One', sans-serif;
 	font-size: 36px;
 	margin: 60px auto 0px auto;
+}
+
+#numberText {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	text-align: center;
+	margin: auto;
+	width: 150px;
+	height: 100px;
 }
 
 #toggleBubble {
@@ -141,13 +167,6 @@
 	margin: 25px 0px;
 }
 
-#numberText {
-	text-align: center;
-	margin: auto;
-	width: 150px;
-	height: 100px;
-}
-
 #mainPopup {
 	padding: 10px;
 	height: 200px;
@@ -156,10 +175,13 @@
 }
 
 h2 {
-	font-family: 'Orienta', sans-serif;
-	font-size: 30px;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 40px;
+	font-style: normal;
+	font-weight: 300;
 	color: #333;
 	text-shadow: rgba(255, 255, 255, 0.701961) 0px 2px 0px;
+	padding-left: 15px;
 }
 
 body {
@@ -170,26 +192,28 @@ body {
 
 /* General button style (reset) */
 .btn {
-	border: none;
-	font-family: "century schoolbook", "Lucida Grande", sans-serif;
-	font-size: 16px;
+	border: 1px solid rgba(0, 0, 0, 0.0980392);
+	border-bottom-color: rgba(0, 0, 0, 0.247059);
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 13px;
 	cursor: pointer;
 	margin: 5px 30px 5px 30px;
-	padding: 10px 25px 10px 80px;
-	font-weight: 700;
+	padding: 10px 15px 10px 45px;
 	outline: none;
 	position: relative;
-	-webkit-transition: all 0.3s;
-	-moz-transition: all 0.3s;
-	transition: all 0.3s;
+	transition: all 0.35s;
+	box-shadow: rgba(255, 255, 255, 0.2) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.0470588) 0px 1px 2px 0px;
 
-	background: #161457;
-	background-image: linear-gradient( #1F1D73, #161457);
-	color: #eee;
+	background: #049CDB;
+	background: -webkit-linear-gradient(top, #049CDB, #0064CD 50%, #0064CD);
+	color: white;
+	text-shadow: rgba(0, 0, 0, 0.247059) 0px -1px 0px;
+	border-radius: 4px;
+	background-size: 100% 200%;
 }
 
 .btn:hover {
-	background: #100F40;
+	background-position: 0 -20px;
 }
 
 .btn:active {
@@ -216,7 +240,6 @@ body {
 	line-height: 2;
 	font-size: 120%;
 	width: 50px;
-	border-right: 2px solid rgba(255,255,255,0.5);
 }
 
 .icon-book:before {

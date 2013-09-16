@@ -17,19 +17,23 @@
 			</div>
 		</div>
 
-		<div ng-show="showWord">
+		<div ng-show="practicingWord">
 			<div>{{word.title}}: {{ word.show }}</div>
 			<div>Type: {{ word.type }} </div>
 
-			<form ng-app> 
-				<input type="text" class="duolingo-input"
-					ng-disabled="showCorrectWord"
-					ng-class="inputClass"
-					ng-model="input" ng-style="styles" focus-me="focusInput"/>
-			</form>
+			<input type="text" class="duolingo-input"
+				ng-disabled="showCorrectWord"
+				ng-class="inputClass"
+				ng-model="input"
+				focus-me="focusInput"/>
+			<button id="invisible" ng-click="submitGuess()"></button>
 		</div>
-		<div ng-show="showCorrectWord">
-			<div>Correct: {{ word.correct }}</div>
+		<div ng-show="isWrongGuess">
+			<p class="correction-text">CORRECT SOLUTION:</p>
+			<div ng-show="showCorrectWord">
+				<input class="duolingo-input correct" ng-model="word.correct" disabled></input>
+			</div>
 		</div>
+
 	</div>
 </div>
