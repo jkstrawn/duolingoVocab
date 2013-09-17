@@ -9,10 +9,14 @@ A Chrome extension to assist in learning vocabulary on duolingo.com
 + Quiz current list of vocab
 + Angular
 + Consider last study time, current level, and determine when to study again
++ Allow user to set next study interval
 
 ## To Do ##
-+ Check for typos
++ Remind user to use accent marks
 + Add support for more languages
-+ Make pretty
-+ Allow user to set next study interval
 + Save language guessing preference
++ Check for typos
++ Combine words of same meaning
++ Query server to get better translation for single word
++ Customize study intervals
++ Make loading gif look better

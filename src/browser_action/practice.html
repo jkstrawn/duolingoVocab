@@ -28,6 +28,39 @@
 				focus-me="focusInput"/>
 			<button id="invisible" ng-click="submitGuess()"></button>
 		</div>
+
+		<div ng-show="isRightGuess">
+			<div id="interval-left">
+				<div id="interval-title">Next Study Time:</div>
+				<span id="interval-current">{{ studyTime }}</span>
+			</div>
+			<div id="interval-right">
+				<div id="interval-title">Change To:</div>
+				<div class="interval">
+					<div class="interval-checkbox">
+						<span>1</span>
+						<input type="checkbox" ng-model="interval[0]" id="interval1" ng-change="setInterval(0)">
+					</div>
+					1 day
+				</div>
+				<div class="interval">
+					<div class="interval-checkbox">
+						<span>2</span>
+						<input type="checkbox" ng-model="interval[1]" id="interval2" ng-change="setInterval(1)">
+					</div>
+					5 days
+				</div>
+				<div class="interval">
+					<div class="interval-checkbox">
+						<span>3</span>
+						<input type="checkbox" ng-model="interval[2]" id="interval3" ng-change="setInterval(2)">
+					</div>
+					25 days
+				</div>
+			</div>
+
+
+		</div>
 		<div ng-show="isWrongGuess">
 			<p class="correction-text">CORRECT SOLUTION:</p>
 			<div ng-show="showCorrectWord">

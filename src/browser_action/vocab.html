@@ -1,4 +1,7 @@
 <h2>Vocabulary</h2>
 <button class="btn icon-back" ng-click="go('/')">Back</button>
-
+<div ng-repeat="word in vocab">
+	{{word.word}}
+	{{word.hints}}
+</div>
 Its totally all kinds of vocab up in here

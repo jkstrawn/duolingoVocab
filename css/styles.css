@@ -106,12 +106,82 @@
 	color: #444;
 }
 
+#interval-title {
+	color: #404040;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 18px;
+}
+
+#interval-left {
+	float: left;
+	width: 200px;
+	margin-top: 15px;
+}
+
+#interval-current {
+	height: 30px;
+	line-height: 30px;
+	vertical-align: middle;
+	margin-left: 10px;
+}
+
+#interval-current:before {
+	font-family: 'icomoon';
+
+	width: 50px;
+	content: "\2c";
+	margin-right: 10px;
+}
+
+#interval-right {
+	float: right;
+	width: 200px;
+	margin-top: 15px;
+}
+
+.interval {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	height: 47px;
+	width: 190px; 
+	color: #999;
+	font-size: 18px;
+	vertical-align: middle;
+	line-height: 42px;
+}
+
+.interval-checkbox {
+	line-height: 13px;
+	border-radius: 3px;
+	box-shadow: rgb(255, 255, 255) 0px 1px 0px 0px inset, rgb(204, 204, 204) 0px 1px 0px 0px;
+	background-color: #F5F5F5;
+	border: 1px solid #CCC;
+	width: 39px;
+	height: 25px;
+	padding: 5px 0px 0px 15px;
+	float: left;
+	margin: 5px 15px 5px 5px;
+}
+
+.interval-checkbox:active {
+	border: 1px solid #ADADAD;
+	background-color: #DADADA;
+	box-shadow: rgb(173, 173, 173) 0px 1px 0px 0px inset;
+}
+
+.interval-checkbox span {
+	font-size: 13px;
+	font-weight: 500;
+	margin-right: 0px;
+	color: #4B4B4B;
+}
+
 #word-type {
 	background: rgba(0, 0, 0, .1);
-	border: 1px solid gray;
+	background-image: -webkit-linear-gradient(top, rgb(255, 255, 255), rgb(231, 231, 231));
+	border: 1px solid #CCC;
 	border-radius: 3px;
 	padding: 5px;
-	width: 100px;
+	width: 140px;
 	margin: 7px 0px;
 }
 
@@ -149,10 +219,9 @@
 	box-shadow: inset 0px 2px 3px #432304, inset 0px 1px 0 #CB5D0B;
 }
 
-
 #practiceWord {
 	width: 400px;
-	height: 280px;
+	height: 370px;
 	background: white;
 	border: 1px solid #222;
 	margin: 5px 30px;

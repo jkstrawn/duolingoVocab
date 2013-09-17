@@ -14,7 +14,6 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 	$scope.queryInProgress = false;
 	$scope.numberOfWordsToStudy = 0;
 
-
 	$scope.go = function ( path ) {
 		$location.path( path );
 	};
@@ -76,13 +75,15 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 	};
 });
 
-app.controller("VocabController", function($scope, $location) {
+app.controller("VocabController", function($scope, $location, Vocab) {
 	$scope.go = function ( path ) {
 		$location.path( path );
 	};
+
+	$scope.vocab = Vocab.vocabList;
 });
 
-app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents) {
+app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents, Intervals) {
 	$scope.input = "";
 	$scope.practicingWord = false;
 	$scope.guessesInEnglish = true;
@@ -90,6 +91,9 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.showCorrectWord = false;
 	$scope.inputClass = "";
 	$scope.isWrongGuess = false;
+	$scope.isRightGuess = false;
+	$scope.interval = [false, false, false];
+	$scope.studyTime = "unknown";
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -99,6 +103,12 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		console.log("starting!");
 		VocabularyManager.setNextNewWord($scope.setNextNewWord);
 	};
+
+	$scope.setInterval = function(i) {
+		var value = $scope.interval[i];
+		$scope.interval = [false, false, false];
+		$scope.interval[i] = value;
+	}
 
 	$scope.changeGuessLanguage = function() {
 		$scope.guessesInEnglish = !$scope.guessesInEnglish;
@@ -134,21 +144,32 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		$scope.showCorrectWord = true;
 
 		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
+			$scope.isRightGuess = true;
 			$scope.inputClass = "correct";
+			$scope.interval = [false, false, false];
 		} else {
 			$scope.isWrongGuess = true;
 			$scope.inputClass = "incorrect";
 		}
 		VocabularyManager.updateWord(!$scope.isWrongGuess);
+		$scope.updateStudyTime();
 
 		if(!$scope.$$phase) {
 			$scope.$apply();
 		}
 	};
 
-	$scope.setNextNewWord = function(isNew) {
+	$scope.updateStudyTime = function() {
+		$scope.studyTime = Intervals.text[Vocab.currentWord.level];
+	};
 
-			console.log("change word");
+	$scope.setNextNewWord = function(isNew) {
+		var desiredInterval = $scope.getUserDefinedInterval();
+		if (desiredInterval > -1) {
+			VocabularyManager.setUserDefinedInterval(desiredInterval + 2);
+		}
+
+		console.log("changed word. Old level: " + Vocab.currentWord.level);
 		if (isNew) {
 			$scope.changeCurrentWord();
 			$scope.practicingWord = true;
@@ -166,6 +187,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		$scope.inputClass = "";
 		$scope.input = "";
 		$scope.isWrongGuess = false;
+		$scope.isRightGuess = false;
 	},
 
 	$scope.generateWordData = function() {
@@ -184,7 +206,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 			correct: Vocab.currentWord.word
 		};
 		return word;
-	},
+	};
 
 	$scope.generateForeignWordData = function() {
 		var word = {
@@ -194,7 +216,16 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 			correct: Vocab.currentWord.hints[0]
 		};
 		return word;
-	}
+	};
+
+	$scope.getUserDefinedInterval = function() {
+		for (var i = $scope.interval.length - 1; i >= 0; i--) {
+			if ($scope.interval[i] == true) {
+				return i;
+			}
+		};
+		return -1;
+	};
 });
 
 app.service("VocabularyManager", function(Vocab, Intervals) {
@@ -314,6 +345,11 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		moveCurrentWordToEndOfList: function() {
 			Vocab.vocabList.splice(Vocab.currentWordIndex, 1);
 			Vocab.vocabList.push(Vocab.currentWord);
+		},
+
+		setUserDefinedInterval: function(level) {
+			Vocab.currentWord.level = level;
+			this.save();
 		}
 	};
 });
@@ -383,7 +419,15 @@ app.factory("Intervals", function() {
 		1000 * 60 * 60 * 24 * 25,
 		1000 * 60 * 60 * 24 * 90
 	];
-	return {intervals: intervals};
+	var text = [
+		"now",
+		"1 hour",
+		"1 day",
+		"5 days",
+		"25 days",
+		"3 months"
+	];
+	return {intervals: intervals, text: text};
 });
 
 app.directive('ngEnter', function () {
@@ -417,4 +461,20 @@ $( window ).bind('keypress', function(e){
 	if ( e.keyCode == 13 ) {
 		$( "#invisible" ).click();
 	}
+	if (e.keyCode == 49) {
+		$("#interval1").click();
+	}
+	if (e.keyCode == 50) {
+		$("#interval2").click();
+	}
+	if (e.keyCode == 51) {
+		$("#interval3").click();
+	}
+});
+
+$(document).keydown(function(e) {
+    var elid = $(document.activeElement).hasClass('duolingo-input');
+    if (e.keyCode === 8 && !elid) {
+        return false;
+    };
 });

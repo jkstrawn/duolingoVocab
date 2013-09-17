@@ -174,11 +174,13 @@ angular.module("superapp")
 						hints[_hint].indexOf("(I)") != -1 ||
 						hints[_hint].indexOf("(he/she/it)") != -1 ||
 						hints[_hint].indexOf("(I/he/she/it/you)") != -1) {
-						hints[_hint] = hints[_hint].slice(hints[_hint].indexOf(")") + 2);
+						//hints[_hint] = "--" + hints[_hint].slice(hints[_hint].indexOf(")") + 2);
+						hints.splice(_hint, 1);
 					}
 				};
 
 				if (hints.length == 0) {
+					console.log(Vocab.vocabList[i].word);
 					this.setNewHintForWord(i);
 				}
 			}
