@@ -29,6 +29,10 @@
 			<button id="invisible" ng-click="submitGuess()"></button>
 		</div>
 
+		<div class="notification color-yellow" id="accent-reminder" ng-show="showAccentReminder">
+			Create accented characters by pressing the tilde key after the letter you want accented
+		</div>
+
 		<div ng-show="isRightGuess">
 			<div id="interval-left">
 				<div id="interval-title">Next Study Time:</div>

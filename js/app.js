@@ -94,6 +94,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.isRightGuess = false;
 	$scope.interval = [false, false, false];
 	$scope.studyTime = "unknown";
+	$scope.showAccentReminder = true;
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -142,6 +143,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		}
 
 		$scope.showCorrectWord = true;
+		$scope.showAccentReminder = false;
 
 		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
 			$scope.isRightGuess = true;

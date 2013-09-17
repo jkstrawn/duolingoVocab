@@ -10,9 +10,9 @@ A Chrome extension to assist in learning vocabulary on duolingo.com
 + Angular
 + Consider last study time, current level, and determine when to study again
 + Allow user to set next study interval
++ Remind user to use accent marks
 
 ## To Do ##
-+ Remind user to use accent marks
 + Add support for more languages
 + Save language guessing preference
 + Check for typos
