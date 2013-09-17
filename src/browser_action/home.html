@@ -3,6 +3,7 @@
 
 	<div id="rightInfo">
 		<div id="line-separator"></div>
+		<div id="study-language">{{ studyLanguage }}</div>
 		<div id="numberOfWords">{{ numberOfWordsToStudy }}</div>
 		<div id="numberText">
 			<p>words to study</p>
@@ -24,10 +25,10 @@
 	<button
 		ng-click="setToNotNew()" 
 		data-ng-disabled="queryInProgress">Make Words not new
-	</button>
+	</button>ng-show="queryInProgress"
 -->
 
-	<div ng-show="queryInProgress">
+	<div id="loading" ng-show="queryInProgress">
 		<img src="../../css/img/loading.gif">
 	</div>
 

@@ -17,6 +17,10 @@
 			</div>
 		</div>
 
+		<div ng-show="!practicingWord">
+			There are no words to practice.
+		</div>
+
 		<div ng-show="practicingWord">
 			<div id="word-type">{{ word.type }}</div>
 			<div id="word">{{ word.show }}</div>
@@ -33,7 +37,7 @@
 			Create accented characters by pressing the tilde key after the letter you want accented
 		</div>
 
-		<div ng-show="isRightGuess">
+		<div id="interval-div" ng-show="isRightGuess">
 			<div id="interval-left">
 				<div id="interval-title">Next Study Time:</div>
 				<span id="interval-current">{{ studyTime }}</span>
@@ -67,9 +71,12 @@
 		</div>
 		<div ng-show="isWrongGuess">
 			<p class="correction-text">CORRECT SOLUTION:</p>
-			<div ng-show="showCorrectWord">
-				<input class="duolingo-input correct" ng-model="word.correct" disabled></input>
-			</div>
+			<input class="duolingo-input correct" ng-model="word.correct" disabled></input>
+		</div>
+
+		<div ng-show="isCorrection">
+			<p class="correction-text">CORRECT SOLUTION:</p>
+			<input class="duolingo-input correction" ng-model="word.correct" disabled></input>
 		</div>
 
 	</div>

@@ -23,8 +23,8 @@
 	box-shadow: none;
 }
 
-.correction {
-	//background: #ffecec;
+.correction, .correction:disabled {
+	background: #F6F6F6;
 	border: 1px solid #999;
 	color: #999;
 	box-shadow: none;
@@ -67,13 +67,22 @@
 	width: 240px;
 }
 
+#study-language {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 20px;
+	height: 10px;
+	width: 100px;
+	text-align: center;
+	margin: 40px auto 0px auto;
+}
+
 #numberOfWords {
 	text-align:center;
 	width: 100px;
 	height: 30px;
 	font-family: 'Denk One', sans-serif;
 	font-size: 36px;
-	margin: 60px auto 0px auto;
+	margin: 20px auto 0px auto;
 }
 
 #numberText {
@@ -104,6 +113,10 @@
 	text-align: center;
 
 	color: #444;
+}
+
+#interval-div {
+	min-height: 163px;
 }
 
 #interval-title {
@@ -221,7 +234,7 @@
 
 #practiceWord {
 	width: 400px;
-	height: 370px;
+	min-height: 355px;
 	background: white;
 	border: 1px solid #222;
 	margin: 5px 30px;
@@ -262,6 +275,13 @@ body {
 	background: #FCD04B;
 	background: url('img/ticks.png');
 	width: 500px;
+}
+
+#loading {
+	margin: 5px 30px;
+	background: white;
+	border: 1px solid gray;
+	padding: 5px 0px 5px 190px;
 }
 
 /* General button style (reset) */

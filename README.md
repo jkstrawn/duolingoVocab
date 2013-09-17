@@ -11,12 +11,12 @@ A Chrome extension to assist in learning vocabulary on duolingo.com
 + Consider last study time, current level, and determine when to study again
 + Allow user to set next study interval
 + Remind user to use accent marks
++ Support for more languages (minus accents)
++ Check for typos
 
 ## To Do ##
-+ Add support for more languages
++ Add accents for more languages
 + Save language guessing preference
-+ Check for typos
 + Combine words of same meaning
 + Query server to get better translation for single word
 + Customize study intervals
-+ Make loading gif look better

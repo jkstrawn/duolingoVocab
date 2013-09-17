@@ -7,6 +7,7 @@ angular.module("superapp")
 		vocab_count: 0,
 		ajaxQueries: 0,
 		callback: null,
+		language: "error",
 
 		getAnyNewVocab: function(callback) {
 			this.callback = callback;
@@ -16,6 +17,9 @@ angular.module("superapp")
 				url: "http://www.duolingo.com/words?page=1",
 				success: function(response) {
 					that.vocab_count = response.vocab_count;
+					that.language = response.language;
+					Vocab.language = response.language_string;
+
 					console.log("Our vocab: " + Vocab.vocabList.length + " vs Duolingo vocab: " + that.vocab_count);
 					if (that.vocab_count > Vocab.vocabList.length) {
 						that.getVocabPagesFromQuery();
@@ -127,7 +131,7 @@ angular.module("superapp")
 		},
 
 		constructHintQuery: function() {
-			var query = "http://d.duolingo.com/words/hints/es/en?tokens=[";
+			var query = "http://d.duolingo.com/words/hints/" + this.language + "/en?tokens=[";
 			for (var i = 0; i < this.newVocab.length; i++) {
 				query += "\"" + this.newVocab[i].word + "\"";
 				if (i != this.newVocab.length - 1) {
@@ -215,7 +219,7 @@ angular.module("superapp")
 		},
 
 		constructSingleHintURI: function(index) {
-			return encodeURI("http://www.duolingo.com/words/es/" + 
+			return encodeURI("http://www.duolingo.com/words/" + this.language + "/" + 
 				Vocab.vocabList[index].word + "/" + Vocab.vocabList[index].type);
 		},
 

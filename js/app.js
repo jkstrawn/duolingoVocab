@@ -13,6 +13,7 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 
 	$scope.queryInProgress = false;
 	$scope.numberOfWordsToStudy = 0;
+	$scope.studyLanguage = "";
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -28,8 +29,11 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 
 	$scope.reset = function() {
 		Vocab.vocabList = [];
+		Vocab.language = "";
 		VocabularyManager.save();
-		$scope.numberOfWordsToStudy = VocabularyManager.getNumberOfWordsToStudy();
+		VocabularyManager.saveStudyLanguage();
+		$scope.studyLanguage = "";
+		$scope.numberOfWordsToStudy = 0;
 	};
 
 	$scope.update = function() {
@@ -40,6 +44,10 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 	};
 
 	$scope.queryEnded = function(numberOfWords) {
+		if (Vocab.language && numberOfWords > 0) {
+			$scope.studyLanguage = Vocab.language;
+			VocabularyManager.saveStudyLanguage();
+		}
 
 		if (numberOfWords == -1) {
 			$scope.notificationClass = "notification color-red";
@@ -59,6 +67,7 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 
 	$scope.setNumberOfWordsToStudy = function(number) {
 		console.log(Vocab.vocabList);
+		$scope.studyLanguage = Vocab.language;
 		$scope.numberOfWordsToStudy = number;
 		$scope.$apply();
 	};
@@ -145,8 +154,13 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		$scope.showCorrectWord = true;
 		$scope.showAccentReminder = false;
 
-		if (VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish)) {
-			$scope.isRightGuess = true;
+		var result = VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish);
+		if (result.correct) {
+			if (result.typo) {
+				$scope.isCorrection = true;
+			} else {
+				$scope.isRightGuess = true;
+			}
 			$scope.inputClass = "correct";
 			$scope.interval = [false, false, false];
 		} else {
@@ -171,7 +185,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 			VocabularyManager.setUserDefinedInterval(desiredInterval + 2);
 		}
 
-		console.log("changed word. Old level: " + Vocab.currentWord.level);
+		$scope.clearPracticeDiv();
 		if (isNew) {
 			$scope.changeCurrentWord();
 			$scope.practicingWord = true;
@@ -183,13 +197,17 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		}
 	}
 
-	$scope.changeCurrentWord = function() {
-		$scope.word = $scope.generateWordData();
+	$scope.clearPracticeDiv = function() {
 		$scope.showCorrectWord = false;
 		$scope.inputClass = "";
 		$scope.input = "";
 		$scope.isWrongGuess = false;
 		$scope.isRightGuess = false;
+		$scope.isCorrection = false;
+	};
+
+	$scope.changeCurrentWord = function() {
+		$scope.word = $scope.generateWordData();
 	},
 
 	$scope.generateWordData = function() {
@@ -235,6 +253,10 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		init: function(callback) {
 			var that = this;
 
+			chrome.storage.local.get("language", function(item) {
+				Vocab.language = item.language;
+			});
+
 			chrome.storage.local.get("vocabList", function(items) {
 				Vocab.vocabList = items.vocabList;
 				var numberOfWordsToStudy = 0;
@@ -266,6 +288,11 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 			console.log("vocab saved");
 		},
 
+		saveStudyLanguage: function() {
+			var obj = {"language": Vocab.language};
+			chrome.storage.local.set(obj);
+		},
+
 		setNextNewWord: function(callback) {
 			for (var i = 0; i < Vocab.vocabList.length; i++) {
 				if (Vocab.vocabList[i].isNew) {
@@ -295,6 +322,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 
 		isGuessForHintsCorrect: function(guess) {
 			var hints = Vocab.currentWord.hints;
+
 			for (var i = 0; i < hints.length; i++) {
 				if (hints[i].indexOf('(') != -1) {
 					hints.push(hints[i].replace(/ *\([^)]*\) */g, ""));
@@ -306,11 +334,45 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 					return true;
 				}		
 			};
-			return false;	
+			
+			return {correct: false, typo: false};	
 		},
 
 		isGuessForWordCorrect: function(guess) {
-			return (guess == Vocab.currentWord.word);
+			if (guess == Vocab.currentWord.word) {
+				return {correct: true, typo: false};
+			}
+			return this.checkForTypo(guess, Vocab.currentWord.word);
+		},
+
+		checkForTypo: function(word, expected) {
+			var offByLetter = 0;
+			word = word.split("");
+			expected = expected.split("");
+
+			if (expected.length == word.length) {
+				for (var i = 0; i < expected.length; i++) {
+					if (expected[i] != word[i]) {
+						offByLetter++;
+					}
+				};		
+			} else {
+				for (var i = 0; i < expected.length || i < word.length; i++) {
+					if (expected[i] != word[i]) {
+						offByLetter++;
+						if (expected.length > word.length) {
+							word.splice(i, 0, " ");
+						} else {
+							word.splice(i, 1);
+						}
+					}
+				};
+			}
+
+			if (offByLetter < 2) {
+				return {correct: true, typo: true};
+			}
+			return {correct: false, typo: false};
 		},
 
 		calculateWordStudyTimes: function() {
@@ -361,6 +423,7 @@ app.factory("Vocab", function() {
 		vocabList: [], 
 		currentWordIndex: -1,
 		currentWord: {word: "otter", type: "Noun"},
+		language: "",
 
 		setWordIndex: function(index) {
 			this.currentWordIndex = index;
@@ -460,6 +523,7 @@ app.directive('focusMe', function($timeout) {
 });
 
 $( window ).bind('keypress', function(e){
+	console.log(e.keyCode);
 	if ( e.keyCode == 13 ) {
 		$( "#invisible" ).click();
 	}
