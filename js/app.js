@@ -23,6 +23,7 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 		if (Vocab.vocabList.length == 0) {
 			VocabularyManager.init($scope.setNumberOfWordsToStudy);
 		} else {
+			$scope.studyLanguage = Vocab.language;
 			$scope.numberOfWordsToStudy = VocabularyManager.getNumberOfWordsToStudy();
 		}
 	};
@@ -67,9 +68,35 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 
 	$scope.setNumberOfWordsToStudy = function(number) {
 		console.log(Vocab.vocabList);
+		$scope.checkForWordWithSameMeaning();
 		$scope.studyLanguage = Vocab.language;
 		$scope.numberOfWordsToStudy = number;
 		$scope.$apply();
+	};
+
+	$scope.checkForWordWithSameMeaning = function() {
+		console.log("checking words...");
+		for (var first = 0; first < Vocab.vocabList.length; first++) {
+			var hints = Vocab.vocabList[first].hints;
+			var valuesSoFar = {};
+			for (var _hint = 0; _hint < hints.length && _hint < 3; _hint++) {
+				valuesSoFar[hints[_hint]] = true;
+			};
+			for (var second = first + 1; second < Vocab.vocabList.length; second++) {
+				var secondHints = Vocab.vocabList[second].hints;
+				for (var _hint2 = 0; _hint2 < secondHints.length; _hint2++) {
+					var value = secondHints[_hint2];
+					if (Object.prototype.hasOwnProperty.call(valuesSoFar, value)) {
+						console.log("hints for " + Vocab.vocabList[first].word  + 
+							" could also be for " + Vocab.vocabList[second].word + 
+							" because of hint: " + value);
+					}
+				};
+			}
+		};
+
+
+
 	};
 
 	$scope.setToNotNew = function() {
@@ -104,6 +131,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.interval = [false, false, false];
 	$scope.studyTime = "unknown";
 	$scope.showAccentReminder = true;
+	$scope.language = Vocab.language;
 
 	$scope.go = function ( path ) {
 		$location.path( path );
@@ -127,7 +155,7 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 
 	$scope.addAccentToLastCharacter = function() {
 		var lastLetter = $scope.input.charCodeAt($scope.input.length - 1);
-		var accentCharCode = Accents.accents[lastLetter];
+		var accentCharCode = Accents.accents[Vocab.language][lastLetter];
 		var newLetter = String.fromCharCode(accentCharCode);
 
 		if (accentCharCode) {
@@ -457,20 +485,100 @@ app.factory("Vocab", function() {
 
 app.factory("Accents", function() {
 	var accents = {
-		97:  225,   // a -> á
-		225: 97,    // á -> a
-		101: 233,   // e -> é
-		233: 101,   // é -> e
-		105: 237,   // i -> í
-		237: 105,   // í -> i
-		111: 243,   // o -> ó
-		243: 111,   // ó -> o
-		117: 250,   // u -> ú
-		250: 252,   // ú -> ü
-		252: 117,   // ü -> u
-		110: 241,   // n -> ñ
-		241: 110    // ñ -> n
+		// Spanish
+		'Spanish': {
+			97:  225,   // a -> á
+			225: 97,    // á -> a
+			101: 233,   // e -> é
+			233: 101,   // é -> e
+			105: 237,   // i -> í
+			237: 105,   // í -> i
+			111: 243,   // o -> ó
+			243: 111,   // ó -> o
+			117: 250,   // u -> ú
+			250: 252,   // ú -> ü
+			252: 117,   // ü -> u
+			110: 241,   // n -> ñ
+			241: 110    // ñ -> n
+		},
+		// German
+		'German' : {
+			97:  228, 	// a -> ä
+			111: 246, 	// o -> ö
+			117: 252, 	// u -> ü
+			98:  223, 	// b -> ß
+			228: 97 , 	// ä -> a
+			246: 111, 	// ö -> o
+			252: 117, 	// ü -> u
+			223: 98  	// ß -> b
+		},
+		// French
+		'French' : {
+			97:  224,	// a -> à 
+			224: 226,	// à -> â 
+			226: 230,	// â -> æ 
+			230: 97 ,	// æ -> a 
+			101: 232,	// e -> è 
+			232: 233,	// è -> é 
+			233: 234,	// é -> ê 
+			234: 235,	// ê -> ë 
+			235: 101,	// ë -> e 
+			105: 238,	// i -> î 
+			238: 239,	// î -> ï 
+			239: 105,	// ï -> i 
+			111: 244,	// o -> ô 
+			244: 339,	// ô -> œ
+			339: 111,	// œ -> o
+			117: 249,	// u -> ù 
+			249: 251,	// ù -> û 
+			251: 252,	// û -> ü 
+			252: 117,	// ü -> u 
+			99:  231,	// c -> ç 
+			231: 99		// ç -> c 
+		},
+		// Portuguese
+		'Portuguese' : {
+			97:  224,	// a -> à 
+			224: 225,	// à -> á 
+			225: 226,	// á -> â 
+			226: 227,	// â -> ã
+			227: 97,	// ã -> a 
+			101: 233,	// e -> é 
+			233: 234,	// é -> ê
+			234: 101,	// ê -> e 
+			105: 237,	// i -> í
+			237: 105,	// í -> i 
+			111: 243,	// o -> ó 
+			243: 244,	// ó -> ô 
+			244: 245,	// ô -> õ
+			245: 111,	// õ -> o 
+			117: 250,	// u -> ú 
+			250: 252,	// ú -> ü
+			252: 117,	// ü -> u 
+			99:  231,	// c -> ç
+			231: 99 	// ç -> c
+		},
+		// Italian
+		'Italian' : {
+			97:  224,	// a -> à 
+			224: 225,	// à -> á
+			225: 97,	// á -> a 
+			101: 232,	// e -> è 
+			232: 233,	// è -> é
+			233: 101,	// é -> e 
+			105: 236,	// i -> ì 
+			236: 237,	// ì -> í
+			237: 105,	// í -> i 
+			111: 242,	// o -> ò 
+			242: 243,	// ò -> ó
+			243: 111,	// ó -> o 
+			117: 249,	// u -> ù 
+			249: 250,	// ù -> ú
+			250: 117	// ú -> u
+		}
 	};
+
+	
 	return {accents: accents};
 });
 

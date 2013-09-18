@@ -11,8 +11,8 @@
 			</div>
 			<div id="toggleRight">
 				<span ng-switch on="guessesInEnglish">
-					<span ng-switch-when="true">English -> Spanish</span>
-					<span ng-switch-when="false">Spanish -> English</span>
+					<span ng-switch-when="true">English -> {{ language }}</span>
+					<span ng-switch-when="false">{{ language }} -> English</span>
 				</span>
 			</div>
 		</div>
