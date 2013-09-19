@@ -10,6 +10,7 @@ angular.module("superapp")
 		language: "error",
 
 		getAnyNewVocab: function(callback) {
+			VocabularyManager.addLog("START: Getting new vocab.");
 			this.callback = callback;
 			var that = this;
 			$.ajax({
@@ -19,19 +20,29 @@ angular.module("superapp")
 					that.vocab_count = response.vocab_count;
 					that.language = response.language;
 					Vocab.language = response.language_string;
+					VocabularyManager.addLog("trying to get vocab for language: " + Vocab.language);
 
-					console.log("Our vocab: " + Vocab.vocabList.length + " vs Duolingo vocab: " + that.vocab_count);
+					VocabularyManager.addLog("Our vocab: " + Vocab.vocabList.length + " vs Duolingo vocab: " + that.vocab_count);
 					if (that.vocab_count > Vocab.vocabList.length) {
 						that.getVocabPagesFromQuery();
 					} else {
+						VocabularyManager.addLog("FINISH: Vocab complete");
+						VocabularyManager.addLog("-------------------------------");
 						that.callback(0);
 					}
 				},
-				error: function(){
+				error: function(xhr, ajaxOptions, thrownError){
 					// will fire when timeout is reached
-					that.callback(-1);
+					VocabularyManager.addLog("ERROR: " + xhr.status);
+        			VocabularyManager.addLog(thrownError.toString());
+        			if (xhr.status === 200 && 
+        				thrownError.toString() === "SyntaxError: Unexpected token <") {
+        				that.callback(-2);
+        			} else {
+        				that.callback(-1);
+        			}
 				},
-				timeout: 3000
+				timeout: 30000
 			});
 		},
 
@@ -40,7 +51,7 @@ angular.module("superapp")
 			this.ajaxQueries = numOfPages;
 			this.clearNewVocab();
 
-			console.log("getting " + numOfPages + " pages..");
+			VocabularyManager.addLog("getting " + numOfPages + " pages..");
 			var that = this;
 			for (var i = 1; i <= numOfPages; i++) {
 				$.ajax({
@@ -49,10 +60,12 @@ angular.module("superapp")
 					success: function(response) {
 						that.processVocabPage(response);
 					},
-					error: function(){
+					error: function(xhr, ajaxOptions, thrownError){
+						VocabularyManager.addLog("ERROR: " + xhr.status);
+	        			VocabularyManager.addLog(thrownError.toString());
 						that.callback(-1);
 					},
-					timeout: 3000
+					timeout: 30000
 				});	
 			}
 		},
@@ -63,6 +76,7 @@ angular.module("superapp")
 		},
 
 		processVocabPage: function(response) {
+			VocabularyManager.addLog("processing vocab page");
 			for (var wordIndex = 0; wordIndex < response.vocab.length; wordIndex++) {
 				var newWord = response.vocab[wordIndex].surface_form;
 				var newType = response.vocab[wordIndex].forms_data[0].pos_key;
@@ -99,10 +113,12 @@ angular.module("superapp")
 		},
 
 		checkForDuplicates: function() {
+			VocabularyManager.addLog("checking for duplicate words");
 			var valuesSoFar = {};
 			for (var i = 0; i < this.newVocab.length; i++) {
 				var value = this.newVocab[i].word;
 				if (this.wordAlreadyUsed(valuesSoFar, value)) {
+					VocabularyManager.addLog("found duplicate word: " + value);
 					this.duplicates.push(value);
 				}
 				valuesSoFar[value] = true;
@@ -114,6 +130,7 @@ angular.module("superapp")
 		},
 
 		getHintsForNewWords: function() {
+			VocabularyManager.addLog("getting hints for all words");
 			var query = this.constructHintQuery();
 
 			var that = this;
@@ -123,10 +140,12 @@ angular.module("superapp")
 				success: function(response) {
 					that.processHints(response);
 				},
-				error: function(){
+				error: function(xhr, ajaxOptions, thrownError){
+					VocabularyManager.addLog("ERROR: " + xhr.status);
+        			VocabularyManager.addLog(thrownError.toString());
 					that.callback(-1);
 				},
-				timeout: 3000
+				timeout: 30000
 			});
 		},
 
@@ -143,6 +162,7 @@ angular.module("superapp")
 		},
 
 		processHints: function(response) {
+			VocabularyManager.addLog("processing hints");
 			for (var i = 0; i < this.newVocab.length; i++) {
 				var word = this.newVocab[i].word;
 				var hints = this.checkForUndefinedHints(word, response);
@@ -164,6 +184,7 @@ angular.module("superapp")
 		},
 
 		checkForBadHints: function() {
+			VocabularyManager.addLog("check for bad hints");
 			for (var i = 0; i < Vocab.vocabList.length; i++) {
 				if (Vocab.vocabList[i].type == "Adjective" && Vocab.vocabList[i].hints[0][0] == "(") {
 					this.setNewHintForWord(i);
@@ -184,13 +205,13 @@ angular.module("superapp")
 				};
 
 				if (hints.length == 0) {
-					console.log(Vocab.vocabList[i].word);
 					this.setNewHintForWord(i);
 				}
 			}
 		},
 
 		processHintsForDuplicateWords: function() {
+			VocabularyManager.addLog("get hints individually for duplicate words");
 			for (var duplicateIndex = 0; duplicateIndex < this.duplicates.length; duplicateIndex++) {
 				var duplicate = this.duplicates[duplicateIndex];
 				for (var vocabIndex = 0; vocabIndex < Vocab.vocabList.length; vocabIndex++) {
@@ -203,6 +224,7 @@ angular.module("superapp")
 		},
 
 		setNewHintForWord: function(index) {
+			VocabularyManager.addLog("getting individual hint");
 			this.ajaxQueries++;
 			var that = this;
 			$.ajax({
@@ -211,10 +233,12 @@ angular.module("superapp")
 				success: function(response) {
 					that.addHintForSingleWord(response, index);
 				},
-				error: function(){
+				error: function(xhr, ajaxOptions, thrownError){
+					VocabularyManager.addLog("ERROR: " + xhr.status);
+        			VocabularyManager.addLog(thrownError.toString());
 					that.callback(-1);
 				},
-				timeout: 3000
+				timeout: 30000
 			});
 		},
 
@@ -252,6 +276,8 @@ angular.module("superapp")
 
 		isHintQueryComplete: function() {
 			if (this.ajaxQueries == 0) {
+				VocabularyManager.addLog("FINISH: Vocab complete");
+				VocabularyManager.addLog("-------------------------------");
 				this.callback(this.newVocab.length);
 				VocabularyManager.save();
 			}

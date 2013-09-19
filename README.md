@@ -15,8 +15,12 @@ A Chrome extension to assist in learning vocabulary on duolingo.com
 + Check for typos
 
 ## To Do ##
++ Account for not being logged into duolingo
++ "Reset vocab" new notifitication
++ Make vocab page
 + Save language guessing preference
 + Save vocab sets
 + Combine words of same meaning
 + Query server to get better translation for single word
 + Customize study intervals
++ Loading bar for update query

@@ -281,7 +281,9 @@ body {
 	margin: 5px 30px;
 	background: white;
 	border: 1px solid gray;
-	padding: 5px 0px 5px 190px;
+	padding: 5px 5px 5px 5px;
+	width: 400px;
+	text-align: center;
 }
 
 /* General button style (reset) */
@@ -403,36 +405,36 @@ body {
 	width: 50px;
 }
 
-.color-green {
+.notification-success {
 	background-color: #C8E185;
 	background-image: linear-gradient( #D0E98E, #C1DA7F);
 	border: 1px solid #ACCC5D;
 	color: #425218;
 }
 
-.color-green:before {
+.notification-success:before {
 	content: "\28";
 }
 
-.color-yellow {
+.notification-warning {
 	background-color: #f3dc8f;
 	background-image: linear-gradient( #FFEAA7, #F3D573);
 	border: 1px solid #E9C95F;
 	color: #7D6619;
 }
 
-.color-yellow:before {
+.notification-warning:before {
 	content: "\2b";
 }
 
-.color-red {
+.notification-error {
 	background-color: #ec8282;
 	background-image: linear-gradient( #f48888, #e17575);
 	border: 1px solid #dc4e4d;
 	color: #941B1B;
 }
 
-.color-red:before {
+.notification-error:before {
 	content: "\27";
 }
 
@@ -448,4 +450,11 @@ body {
 
 #accent-reminder {
 	width: 280px;
+}
+
+#logs {
+	padding: 10px;
+	margin: 5px 0px 0px 15px;
+	border: 1px solid black;
+	background: white;
 }

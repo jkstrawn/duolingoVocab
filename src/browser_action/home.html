@@ -10,7 +10,7 @@
 		</div>
 	</div>
 	<button class="btn icon-pencil" ng-click="go('/practice')">Practice</button>
-	<button class="btn icon-book" ng-click="go('/vocab')">View Vocab</button>
+	<button class="btn icon-bookmark" ng-click="go('/vocab')">View Vocab</button>
 	<button
 		class="btn icon-box-add" 
 		ng-click="update()" 
@@ -21,6 +21,7 @@
 		ng-click="reset()" 
 		data-ng-disabled="queryInProgress">Reset Vocab
 	</button>
+	<button class="btn icon-book" ng-click="go('/logs')">Logs</button>
 	<!--
 	<button
 		ng-click="setToNotNew()" 
@@ -29,6 +30,8 @@
 -->
 
 	<div id="loading" ng-show="queryInProgress">
+		<div>Please wait at least 30 seconds...</div>
+		<br>
 		<img src="../../css/img/loading.gif">
 	</div>
 

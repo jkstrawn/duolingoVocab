@@ -1,0 +1,9 @@
+<h2>Error Logs</h2>
+<button class="btn icon-back" ng-click="go('/')">Back</button>
+<div id="logs">
+	<div ng-repeat="log in logs">
+		{{log.message}}
+		<span ng-show="log.number > 1"> -- x{{log.number}}</span>
+		
+	</div>
+</div>

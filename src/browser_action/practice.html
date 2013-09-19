@@ -30,11 +30,11 @@
 				ng-class="inputClass"
 				ng-model="input"
 				focus-me="focusInput"/>
-			<button id="invisible" ng-click="submitGuess()"></button>
+			<button id="invisible" ng-click="submitGuess()" style="float: right"></button>
 		</div>
 
-		<div class="notification color-yellow" id="accent-reminder" ng-show="showAccentReminder">
-			Create accented characters by pressing the tilde key after the letter you want accented
+		<div class="notification notification-warning" id="accent-reminder" ng-show="showAccentReminder">
+			Create accented characters by pressing the tilde key after the letter you want accented.
 		</div>
 
 		<div id="interval-div" ng-show="isRightGuess">
@@ -45,24 +45,30 @@
 			<div id="interval-right">
 				<div id="interval-title">Change To:</div>
 				<div class="interval">
-					<div class="interval-checkbox">
-						<span>1</span>
-						<input type="checkbox" ng-model="interval[0]" id="interval1" ng-change="setInterval(0)">
-					</div>
+					<label for="interval1">
+						<div class="interval-checkbox">
+							<span>1</span>
+							<input type="checkbox" ng-model="interval[0]" id="interval1" ng-change="setInterval(0)">
+						</div>
+					</label>
 					1 day
 				</div>
 				<div class="interval">
-					<div class="interval-checkbox">
-						<span>2</span>
-						<input type="checkbox" ng-model="interval[1]" id="interval2" ng-change="setInterval(1)">
-					</div>
+					<label for="interval2">
+						<div class="interval-checkbox">
+							<span>2</span>
+							<input type="checkbox" ng-model="interval[1]" id="interval2" ng-change="setInterval(1)">
+						</div>
+					</label>
 					5 days
 				</div>
 				<div class="interval">
-					<div class="interval-checkbox">
-						<span>3</span>
-						<input type="checkbox" ng-model="interval[2]" id="interval3" ng-change="setInterval(2)">
-					</div>
+					<label for="interval3">
+						<div class="interval-checkbox">
+							<span>3</span>
+							<input type="checkbox" ng-model="interval[2]" id="interval3" ng-change="setInterval(2)">
+						</div>
+					</label>
 					25 days
 				</div>
 			</div>

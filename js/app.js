@@ -5,6 +5,7 @@ app.config( function($routeProvider) {
 	$routeProvider.when( "/home", { templateUrl: 'home.html', controller: "HomeController"});
 	$routeProvider.when( "/practice", { templateUrl: 'practice.html', controller: "PracticeController"});
 	$routeProvider.when( "/vocab", { templateUrl: 'vocab.html', controller: "VocabController"});
+	$routeProvider.when( "/logs", { templateUrl: 'logs.html', controller: "LogController"});
 
 	$routeProvider.otherwise({ redirectTo: "/home"});
 });
@@ -51,14 +52,18 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 		}
 
 		if (numberOfWords == -1) {
-			$scope.notificationClass = "notification color-red";
-			$scope.message = "Duolingo not responding. Try again later.";
+			$scope.notificationClass = "notification notification-error";
+			$scope.message = "Duolingo is not responding. Try again later.";
+		} else
+		if (numberOfWords === -2) {
+			$scope.notificationClass = "notification notification-error";
+			$scope.message = "You are not logged in.";
 		} else
 		if (numberOfWords == 0) {
-			$scope.notificationClass = "notification color-yellow";
+			$scope.notificationClass = "notification notification-warning";
 			$scope.message = "There were no new words.";
 		} else {
-			$scope.notificationClass = "notification color-green";
+			$scope.notificationClass = "notification notification-success";
 			$scope.message = "There were " + numberOfWords + " new words added.";
 		}
 		$scope.queryInProgress = false;
@@ -68,7 +73,7 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 
 	$scope.setNumberOfWordsToStudy = function(number) {
 		console.log(Vocab.vocabList);
-		$scope.checkForWordWithSameMeaning();
+		//$scope.checkForWordWithSameMeaning();
 		$scope.studyLanguage = Vocab.language;
 		$scope.numberOfWordsToStudy = number;
 		$scope.$apply();
@@ -117,6 +122,14 @@ app.controller("VocabController", function($scope, $location, Vocab) {
 	};
 
 	$scope.vocab = Vocab.vocabList;
+});
+
+app.controller("LogController", function($scope, $location, VocabularyManager) {
+	$scope.go = function ( path ) {
+		$location.path( path );
+	};
+
+	$scope.logs = VocabularyManager.logs;
 });
 
 app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents, Intervals) {
@@ -278,7 +291,10 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 
 app.service("VocabularyManager", function(Vocab, Intervals) {
 	return {
+		logs: [],
+
 		init: function(callback) {
+			this.logs.push({'message': 'Logging information:', "number": 1});
 			var that = this;
 
 			chrome.storage.local.get("language", function(item) {
@@ -342,6 +358,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		},
 
 		isGuessCorrect: function(guess, guessForWord) {
+			console.log("guess");
 			if (guessForWord) {
 				return this.isGuessForWordCorrect(guess);
 			}
@@ -349,6 +366,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		},
 
 		isGuessForHintsCorrect: function(guess) {
+			console.log("checking against english words");
 			var hints = Vocab.currentWord.hints;
 
 			for (var i = 0; i < hints.length; i++) {
@@ -359,8 +377,13 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 					hints.push("to " + hints[i].slice(5));
 				}
 				if (hints[i] == guess) {
-					return true;
-				}		
+					return {correct: true, typo: false};
+				} else {
+					var result = this.checkForTypo(guess, hints[i]);
+					if (result.correct) {
+						return result;
+					}
+				}
 			};
 			
 			return {correct: false, typo: false};	
@@ -442,6 +465,14 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		setUserDefinedInterval: function(level) {
 			Vocab.currentWord.level = level;
 			this.save();
+		},
+
+		addLog: function(message) {
+			if (this.logs[this.logs.length - 1].message == message) {
+				this.logs[this.logs.length - 1].number++;
+			} else {
+				this.logs.push({'message': message, 'number': 1});
+			}
 		}
 	};
 });
