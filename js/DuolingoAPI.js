@@ -8,6 +8,7 @@ angular.module("superapp")
 		ajaxQueries: 0,
 		callback: null,
 		language: "error",
+		hints: {},
 
 		getAnyNewVocab: function(callback) {
 			VocabularyManager.addLog("START: Getting new vocab.");
@@ -34,6 +35,7 @@ angular.module("superapp")
 				error: function(xhr, ajaxOptions, thrownError){
 					// will fire when timeout is reached
 					VocabularyManager.addLog("ERROR: " + xhr.status);
+					VocabularyManager.addLog(xhr.responseText);
         			VocabularyManager.addLog(thrownError.toString());
         			if (xhr.status === 200 && 
         				thrownError.toString() === "SyntaxError: Unexpected token <") {
@@ -62,6 +64,7 @@ angular.module("superapp")
 					},
 					error: function(xhr, ajaxOptions, thrownError){
 						VocabularyManager.addLog("ERROR: " + xhr.status);
+						VocabularyManager.addLog(xhr.responseText);
 	        			VocabularyManager.addLog(thrownError.toString());
 						that.callback(-1);
 					},
@@ -130,48 +133,70 @@ angular.module("superapp")
 		},
 
 		getHintsForNewWords: function() {
-			VocabularyManager.addLog("getting hints for all words");
-			var query = this.constructHintQuery();
+			var pages = Math.ceil(this.newVocab.length / 100);
+			VocabularyManager.addLog("getting hints for all words: " + pages + " pages");
+			for (var i = 0; i < pages; i++) {
+				var query = this.constructHintQuery(i);
 
-			var that = this;
-			$.ajax({
-				dataType: "json",
-				url:  encodeURI(query),
-				success: function(response) {
-					that.processHints(response);
-				},
-				error: function(xhr, ajaxOptions, thrownError){
-					VocabularyManager.addLog("ERROR: " + xhr.status);
-        			VocabularyManager.addLog(thrownError.toString());
-					that.callback(-1);
-				},
-				timeout: 30000
-			});
+				this.ajaxQueries++;
+				var that = this;
+				$.ajax({
+					dataType: "json",
+					url:  encodeURI(query),
+					success: function(response) {
+						that.processHintsPage(response);
+					},
+					error: function(xhr, ajaxOptions, thrownError){
+						VocabularyManager.addLog("ERROR: " + xhr.status);
+						VocabularyManager.addLog(xhr.responseText);
+						VocabularyManager.addLog(query);
+	        			VocabularyManager.addLog(thrownError.toString());
+						that.callback(-1);
+					},
+					timeout: 30000
+				});				
+			};
+
 		},
 
-		constructHintQuery: function() {
+		constructHintQuery: function(pageNumber) {
 			var query = "http://d.duolingo.com/words/hints/" + this.language + "/en?tokens=[";
-			for (var i = 0; i < this.newVocab.length; i++) {
-				query += "\"" + this.newVocab[i].word + "\"";
-				if (i != this.newVocab.length - 1) {
+			for (var i = pageNumber * 100; i < this.newVocab.length && i < pageNumber * 100 + 100; i++) {
+				if (i != pageNumber * 100) {
 					query += ',';
 				}
+				query += "\"" + this.newVocab[i].word + "\"";
 			}
 			query += ']';
 			return query;
 		},
 
-		processHints: function(response) {
-			VocabularyManager.addLog("processing hints");
+		processHintsPage: function(response) {
+			VocabularyManager.addLog("processing hints page");
+
+			jQuery.extend(this.hints, response);
+			this.ajaxQueries--;
+			this.isAllHintsQueryComplete();
+		},
+
+		isAllHintsQueryComplete: function() {
+			if (this.ajaxQueries == 0) {
+				this.processHints();
+			}
+		},
+
+		processHints: function() {
+			VocabularyManager.addLog("Processing all hints together");
+			console.log(this.hints);
+
 			for (var i = 0; i < this.newVocab.length; i++) {
 				var word = this.newVocab[i].word;
-				var hints = this.checkForUndefinedHints(word, response);
+				var hints = this.checkForUndefinedHints(word, this.hints);
 
 				Vocab.addNewVocab(word, hints, this.newVocab[i].type);
 			}
-
 			this.checkForBadHints();
-			this.processHintsForDuplicateWords();
+			this.processHintsForDuplicateWords();	
 		},
 
 		checkForUndefinedHints: function(word, response) {
@@ -225,6 +250,11 @@ angular.module("superapp")
 
 		setNewHintForWord: function(index) {
 			VocabularyManager.addLog("getting individual hint");
+			if (this.ajaxQueries > 50) {
+				VocabularyManager.addLog("ERROR: There are too many individual hint queries, aborting query");
+				return;
+			}
+			
 			this.ajaxQueries++;
 			var that = this;
 			$.ajax({
@@ -235,6 +265,7 @@ angular.module("superapp")
 				},
 				error: function(xhr, ajaxOptions, thrownError){
 					VocabularyManager.addLog("ERROR: " + xhr.status);
+					VocabularyManager.addLog(xhr.responseText);
         			VocabularyManager.addLog(thrownError.toString());
 					that.callback(-1);
 				},

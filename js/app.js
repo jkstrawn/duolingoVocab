@@ -376,7 +376,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 				if (hints[i].substring(0, 4) == "(to)") {
 					hints.push("to " + hints[i].slice(5));
 				}
-				if (hints[i] == guess) {
+				if (hints[i] == guess || hints[i] == guess.toLowerCase() || hints[i] == guess.trim()) {
 					return {correct: true, typo: false};
 				} else {
 					var result = this.checkForTypo(guess, hints[i]);
@@ -667,6 +667,14 @@ $( window ).bind('keypress', function(e){
 		$( "#invisible" ).click();
 	}
 	if (e.keyCode == 49) {
+
+	chrome.storage.local.get("vocabList", function(result) {
+		var data = JSON.stringify(result);
+		var html = "<div>" + data + "</div>";
+		
+		//document.getElementById("home").innerHTML = html;
+	});
+
 		$("#interval1").click();
 	}
 	if (e.keyCode == 50) {
