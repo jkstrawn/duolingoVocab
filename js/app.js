@@ -468,6 +468,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		},
 
 		addLog: function(message) {
+			console.log(message);
 			if (this.logs[this.logs.length - 1].message == message) {
 				this.logs[this.logs.length - 1].number++;
 			} else {

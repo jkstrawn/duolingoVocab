@@ -9,7 +9,7 @@ angular.module("superapp")
 		callback: null,
 		language: "error",
 		hints: {},
-		GET_VOCAB_URL: "http://www.duolingo.com/words?page=1",
+		GET_VOCAB_URL: "https://www.duolingo.com/vocabulary/overview",
 		GET_VOCAB_PAGE_URL: "http://www.duolingo.com/words?page=",
 		VOCAB_HINTS_URL: "http://d.duolingo.com/words/hints/",
 		VOCAB_HINT_URL: "http://www.duolingo.com/words/",
@@ -20,16 +20,16 @@ angular.module("superapp")
 			var that = this;
 			$.ajax({
 				dataType: "json",
-				url: GET_VOCAB_URL,
+				url: that.GET_VOCAB_URL,
 				success: function(response) {
-					that.vocab_count = response.vocab_count;
-					that.language = response.language;
+					that.vocab_count = response.vocab_overview.length;
+					that.language = response.learning_language;
 					Vocab.language = response.language_string;
 					VocabularyManager.addLog("trying to get vocab for language: " + Vocab.language);
 
 					VocabularyManager.addLog("Our vocab: " + Vocab.vocabList.length + " vs Duolingo vocab: " + that.vocab_count);
 					if (that.vocab_count > Vocab.vocabList.length) {
-						that.getVocabPagesFromQuery();
+						that.processVocab(response);
 					} else {
 						VocabularyManager.addLog("FINISH: Vocab complete");
 						VocabularyManager.addLog("-------------------------------");
@@ -52,47 +52,23 @@ angular.module("superapp")
 			});
 		},
 
-		getVocabPagesFromQuery: function(pageNumber) {
-			var numOfPages = Math.ceil(this.vocab_count / 20);
-			this.ajaxQueries = numOfPages;
-			this.clearNewVocab();
-
-			VocabularyManager.addLog("getting " + numOfPages + " pages..");
-			var that = this;
-			for (var i = 1; i <= numOfPages; i++) {
-				$.ajax({
-					dataType: "json",
-					url: GET_VOCAB_PAGE_URL+i,
-					success: function(response) {
-						that.processVocabPage(response);
-					},
-					error: function(xhr, ajaxOptions, thrownError){
-						VocabularyManager.addLog("ERROR: " + xhr.status);
-						VocabularyManager.addLog(xhr.responseText);
-	        			VocabularyManager.addLog(thrownError.toString());
-						that.callback(-1);
-					},
-					timeout: 30000
-				});	
-			}
-		},
-
 		clearNewVocab: function() {
 			this.newVocab = [];
 			this.duplicates = [];	
 		},
 
-		processVocabPage: function(response) {
-			VocabularyManager.addLog("processing vocab page");
-			for (var wordIndex = 0; wordIndex < response.vocab.length; wordIndex++) {
-				var newWord = response.vocab[wordIndex].surface_form;
-				var newType = response.vocab[wordIndex].forms_data[0].pos_key;
+		processVocab: function(response) {
+			VocabularyManager.addLog("processing vocab");
+			for (var wordIndex = 0; wordIndex < response.vocab_overview.length; wordIndex++) {
+				var newWord = response.vocab_overview[wordIndex].normalized_string;
+				var newType = response.vocab_overview[wordIndex].pos;
 				if (!this.isWordAlreadyDefined(newWord, newType)) {
 					this.addWordToNewVocab(newWord, newType);
 				}
 			}
-			this.ajaxQueries--;
-			this.isVocabQueryComplete();
+
+			this.checkForDuplicates();
+			this.getHintsForNewWords();
 		},
 
 		isWordAlreadyDefined: function(word, type) {
@@ -110,13 +86,6 @@ angular.module("superapp")
 
 		addWordToNewVocab: function(word, type) {
 			this.newVocab.push({word: word, type: type});
-		},
-
-		isVocabQueryComplete: function() {
-			if (this.ajaxQueries == 0) {
-				this.checkForDuplicates();
-				this.getHintsForNewWords();
-			}
 		},
 
 		checkForDuplicates: function() {
@@ -164,7 +133,7 @@ angular.module("superapp")
 		},
 
 		constructHintQuery: function(pageNumber) {
-			var query = VOCAB_HINTS_URL + this.language + "/en?tokens=[";
+			var query = this.VOCAB_HINTS_URL + this.language + "/en?tokens=[";
 			for (var i = pageNumber * 100; i < this.newVocab.length && i < pageNumber * 100 + 100; i++) {
 				if (i != pageNumber * 100) {
 					query += ',';
@@ -199,7 +168,7 @@ angular.module("superapp")
 
 				Vocab.addNewVocab(word, hints, this.newVocab[i].type);
 			}
-			this.checkForBadHints();
+			//this.checkForBadHints();
 			this.processHintsForDuplicateWords();	
 		},
 
@@ -261,6 +230,8 @@ angular.module("superapp")
 			
 			this.ajaxQueries++;
 			var that = this;
+			var url =that.constructSingleHintURI(index);
+			debugger; 
 			$.ajax({
 				dataType: "json",
 				url: that.constructSingleHintURI(index),
@@ -278,7 +249,7 @@ angular.module("superapp")
 		},
 
 		constructSingleHintURI: function(index) {
-			return encodeURI(VOCAB_HINT_URL + this.language + "/" + 
+			return encodeURI(this.VOCAB_HINT_URL + this.language + "/" + 
 				Vocab.vocabList[index].word + "/" + Vocab.vocabList[index].type);
 		},
 
