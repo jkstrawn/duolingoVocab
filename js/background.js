@@ -53,3 +53,27 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 updateVocab();
 setAlarm();
+
+var executed = {}
+
+function executeScripts(tab) {
+	/*
+	chrome.tabs.executeScript(null, { file: "js/jquery.js" }, function() {
+		chrome.tabs.executeScript(null, { file: "js/replaceText.js" }, function() {
+			chrome.tabs.executeScript(null, { file: "js/content.js" }, function() {
+				executed[tab] = "jp";
+			});
+		});
+	});
+*/
+	chrome.tabs.executeScript(null, { file: "js/jquery.js" });
+}
+
+chrome.tabs.onUpdated.addListener(loadOnUpdated);
+
+function loadOnUpdated(tab, change) {
+	if (change.status === 'complete') {
+		delete executed[tab];
+		executeScripts(tab);
+	}
+}
