@@ -9,25 +9,27 @@
 			<p>words to study</p>
 		</div>
 	</div>
-	<button class="btn icon-pencil" ng-click="go('/practice')">Practice</button>
-	<button class="btn icon-bookmark" ng-click="go('/vocab')">View Vocab</button>
+
+	<button class="btn icon icon-pencil" ng-click="go('/practice')">Practice</button>
+
+	<button class="btn icon icon-bookmark" ng-click="go('/vocab')">View Vocab</button>
+
 	<button
-		class="btn icon-box-add" 
+		class="btn icon icon-cloud-download" 
 		ng-click="update()" 
 		data-ng-disabled="queryInProgress">Update Vocab
 	</button>
+
 	<button
-		class="btn icon-warning" 
+		class="btn icon icon-cancel-circle" 
 		ng-click="reset()" 
 		data-ng-disabled="queryInProgress">Reset Vocab
 	</button>
-	<button class="btn icon-book" ng-click="go('/logs')">Logs</button>
-	<!--
-	<button
-		ng-click="setToNotNew()" 
-		data-ng-disabled="queryInProgress">Make Words not new
-	</button>ng-show="queryInProgress"
+
+<!--
+	<button class="btn icon icon-cog" ng-click="go('/settings')">Settings</button>
 -->
+	<button class="btn icon icon-book" ng-click="go('/logs')">Logs</button>
 
 	<div id="loading" ng-show="queryInProgress">
 		<div>Please wait at least 30 seconds...</div>
@@ -37,17 +39,3 @@
 
 	<div class="alert-box" ng-class="notificationClass">{{ message }}</div>
 </div>
-
-<script>
-/*
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-45478500-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-*/
-</script>

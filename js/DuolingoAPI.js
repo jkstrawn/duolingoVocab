@@ -24,7 +24,9 @@ angular.module("superapp")
 				success: function(response) {
 					that.vocab_count = response.vocab_overview.length;
 					that.language = response.learning_language;
+					that.fromLanguage = response.from_language;
 					Vocab.language = response.language_string;
+					Vocab.fromLanguage = (response.from_language == "en") ? "English" : response.from_language;
 					VocabularyManager.addLog("trying to get vocab for language: " + Vocab.language);
 
 					VocabularyManager.addLog("Our vocab: " + Vocab.vocabList.length + " vs Duolingo vocab: " + that.vocab_count);
@@ -59,8 +61,9 @@ angular.module("superapp")
 
 		processVocab: function(response) {
 			VocabularyManager.addLog("processing vocab");
+			VocabularyManager.addLog(response);
 			for (var wordIndex = 0; wordIndex < response.vocab_overview.length; wordIndex++) {
-				var newWord = response.vocab_overview[wordIndex].normalized_string;
+				var newWord = decodeURI(response.vocab_overview[wordIndex].word_string);
 				var newType = response.vocab_overview[wordIndex].pos;
 				if (!this.isWordAlreadyDefined(newWord, newType)) {
 					this.addWordToNewVocab(newWord, newType);
@@ -94,7 +97,7 @@ angular.module("superapp")
 			for (var i = 0; i < this.newVocab.length; i++) {
 				var value = this.newVocab[i].word;
 				if (this.wordAlreadyUsed(valuesSoFar, value)) {
-					VocabularyManager.addLog("found duplicate word: " + value);
+					VocabularyManager.addLog("found duplicate word: " + value + ", " + this.newVocab[i].hints);
 					this.duplicates.push(value);
 				}
 				valuesSoFar[value] = true;
@@ -133,7 +136,7 @@ angular.module("superapp")
 		},
 
 		constructHintQuery: function(pageNumber) {
-			var query = this.VOCAB_HINTS_URL + this.language + "/en?tokens=[";
+			var query = this.VOCAB_HINTS_URL + this.language + "/" + this.fromLanguage + "?tokens=[";
 			for (var i = pageNumber * 100; i < this.newVocab.length && i < pageNumber * 100 + 100; i++) {
 				if (i != pageNumber * 100) {
 					query += ',';
@@ -146,6 +149,7 @@ angular.module("superapp")
 
 		processHintsPage: function(response) {
 			VocabularyManager.addLog("processing hints page");
+			VocabularyManager.addLog(response);
 
 			jQuery.extend(this.hints, response);
 			this.ajaxQueries--;
@@ -160,16 +164,19 @@ angular.module("superapp")
 
 		processHints: function() {
 			VocabularyManager.addLog("Processing all hints together");
-			console.log(this.hints);
+			var wordsThatNeedNewHints = [];
 
 			for (var i = 0; i < this.newVocab.length; i++) {
 				var word = this.newVocab[i].word;
 				var hints = this.checkForUndefinedHints(word, this.hints);
-
+				
 				Vocab.addNewVocab(word, hints, this.newVocab[i].type);
 			}
+
 			//this.checkForBadHints();
-			this.processHintsForDuplicateWords();	
+			//this.processHintsForDuplicateWords();	
+			this.ajaxQueries = 0;
+			this.isHintQueryComplete();
 		},
 
 		checkForUndefinedHints: function(word, response) {
@@ -231,7 +238,7 @@ angular.module("superapp")
 			this.ajaxQueries++;
 			var that = this;
 			var url =that.constructSingleHintURI(index);
-			debugger; 
+
 			$.ajax({
 				dataType: "json",
 				url: that.constructSingleHintURI(index),

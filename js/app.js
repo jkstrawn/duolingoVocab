@@ -5,6 +5,7 @@ app.config( function($routeProvider) {
 	$routeProvider.when( "/home", { templateUrl: 'home.html', controller: "HomeController"});
 	$routeProvider.when( "/practice", { templateUrl: 'practice.html', controller: "PracticeController"});
 	$routeProvider.when( "/vocab", { templateUrl: 'vocab.html', controller: "VocabController"});
+	$routeProvider.when( "/settings", { templateUrl: 'settings.html', controller: "SettingsController"});
 	$routeProvider.when( "/logs", { templateUrl: 'logs.html', controller: "LogController"});
 
 	$routeProvider.otherwise({ redirectTo: "/home"});
@@ -12,6 +13,7 @@ app.config( function($routeProvider) {
 
 app.controller("HomeController", function($scope, $location, VocabularyManager, Vocab, Accents, DuolingoAPI) {
 
+	_gaq.push(['_trackPageview', window.location.hash]);
 	$scope.queryInProgress = false;
 	$scope.numberOfWordsToStudy = 0;
 	$scope.studyLanguage = "";
@@ -32,6 +34,7 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 	$scope.reset = function() {
 		Vocab.vocabList = [];
 		Vocab.language = "";
+		Vocab.fromLanguage = "";
 		VocabularyManager.save();
 		VocabularyManager.saveStudyLanguage();
 		$scope.studyLanguage = "";
@@ -117,22 +120,35 @@ app.controller("HomeController", function($scope, $location, VocabularyManager, 
 });
 
 app.controller("VocabController", function($scope, $location, Vocab) {
+	_gaq.push(['_trackPageview', window.location.hash]);
+
+	$scope.vocab = Vocab.vocabList;
+
 	$scope.go = function ( path ) {
 		$location.path( path );
 	};
-
-	$scope.vocab = Vocab.vocabList;
 });
 
 app.controller("LogController", function($scope, $location, VocabularyManager) {
+	_gaq.push(['_trackPageview', window.location.hash]);
+
+	$scope.logs = VocabularyManager.logs;
+
 	$scope.go = function ( path ) {
 		$location.path( path );
 	};
+});
 
-	$scope.logs = VocabularyManager.logs;
+app.controller("SettingsController", function($scope, $location) {
+	_gaq.push(['_trackPageview', window.location.hash]);
+
+	$scope.go = function ( path ) {
+		$location.path( path );
+	};
 });
 
 app.controller("PracticeController", function($scope, $location, VocabularyManager, Vocab, Accents, Intervals) {
+	_gaq.push(['_trackPageview', window.location.hash]);
 	$scope.input = "";
 	$scope.practicingWord = false;
 	$scope.guessesInEnglish = true;
@@ -143,15 +159,23 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	$scope.isRightGuess = false;
 	$scope.interval = [false, false, false];
 	$scope.studyTime = "unknown";
-	$scope.showAccentReminder = true;
+	$scope.showAccentReminder = false;
+	$scope.showAccentError = false;
 	$scope.language = Vocab.language;
+	$scope.fromLanguage = Vocab.fromLanguage;
 
 	$scope.go = function ( path ) {
 		$location.path( path );
 	};
 
 	$scope.init = function() {
+		console.log(window.location.hash);
 		console.log("starting!");
+		if (Accents.accents[Vocab.language]) {
+			$scope.showAccentReminder = true;
+		} else {
+			$scope.showAccentError = true;
+		}
 		VocabularyManager.setNextNewWord($scope.setNextNewWord);
 	};
 
@@ -167,6 +191,8 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 	};
 
 	$scope.addAccentToLastCharacter = function() {
+		if (!Accents.accents[Vocab.language]) return;
+
 		var lastLetter = $scope.input.charCodeAt($scope.input.length - 1);
 		var accentCharCode = Accents.accents[Vocab.language][lastLetter];
 		var newLetter = String.fromCharCode(accentCharCode);
@@ -192,8 +218,10 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 			return;
 		}
 
+		$scope.focusInput = false;
 		$scope.showCorrectWord = true;
 		$scope.showAccentReminder = false;
+		$scope.showAccentError = false;
 
 		var result = VocabularyManager.isGuessCorrect($scope.input, $scope.guessesInEnglish);
 		if (result.correct) {
@@ -210,6 +238,8 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		}
 		VocabularyManager.updateWord(!$scope.isWrongGuess);
 		$scope.updateStudyTime();
+
+		_gaq.push(['_trackEvent', "Study", 'Studied Word']);
 
 		if(!$scope.$$phase) {
 			$scope.$apply();
@@ -233,6 +263,8 @@ app.controller("PracticeController", function($scope, $location, VocabularyManag
 		} else {
 			$scope.practicingWord = false;
 		}
+		$scope.focusInput = true;
+		//$scope.$broadcast('focusInput');
 		if(!$scope.$$phase) {
 			$scope.$apply();
 		}
@@ -298,7 +330,8 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 			var that = this;
 
 			chrome.storage.local.get("language", function(item) {
-				Vocab.language = item.language;
+				Vocab.language = item.language.to;
+				Vocab.fromLanguage = item.language.from;
 			});
 
 			chrome.storage.local.get("vocabList", function(items) {
@@ -333,7 +366,7 @@ app.service("VocabularyManager", function(Vocab, Intervals) {
 		},
 
 		saveStudyLanguage: function() {
-			var obj = {"language": Vocab.language};
+			var obj = {"language": {"to": Vocab.language, "from": Vocab.fromLanguage}};
 			chrome.storage.local.set(obj);
 		},
 
@@ -484,6 +517,7 @@ app.factory("Vocab", function() {
 		currentWordIndex: -1,
 		currentWord: {word: "otter", type: "Noun"},
 		language: "",
+		fromLanguage: "",
 
 		setWordIndex: function(index) {
 			this.currentWordIndex = index;
@@ -495,7 +529,7 @@ app.factory("Vocab", function() {
 			wordData.hints = hints;
 			wordData.word = word;
 			wordData.last = new Date().getTime();
-			wordData.type = type;
+			wordData.type = type || "unknown type";
 			wordData.isNew = true;
 			wordData.toStudy = true;
 			wordData.level = 0;
@@ -656,6 +690,7 @@ app.directive('focusMe', function($timeout) {
 	return {
 		link: function(scope, element, attrs) {
 			scope.$watch(attrs.focusMe, function(value) {
+				console.log("focus");
 				element[0].focus();
 			});
 		}
@@ -663,7 +698,7 @@ app.directive('focusMe', function($timeout) {
 });
 
 $( window ).bind('keypress', function(e){
-	console.log(e.keyCode);
+	//console.log(e.keyCode);
 	if ( e.keyCode == 13 ) {
 		$( "#invisible" ).click();
 	}
@@ -692,3 +727,13 @@ $(document).keydown(function(e) {
         return false;
     };
 });
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-36136584-2']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = 'https://ssl.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();

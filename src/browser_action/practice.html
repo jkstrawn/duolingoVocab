@@ -1,6 +1,6 @@
 <div data-ng-init="init()" ng-enter>
 	<h2>Practice</h2>
-	<button class="btn icon-back" ng-click="go('/')">Back</button>
+	<button class="btn icon icon-undo" ng-click="go('/')">Back</button>
 	<br>
 
 	<div id="practiceWord">
@@ -11,8 +11,8 @@
 			</div>
 			<div id="toggleRight">
 				<span ng-switch on="guessesInEnglish">
-					<span ng-switch-when="true">English -> {{ language }}</span>
-					<span ng-switch-when="false">{{ language }} -> English</span>
+					<span ng-switch-when="true">{{ fromLanguage }} -> {{ language }}</span>
+					<span ng-switch-when="false">{{ language }} -> {{ fromLanguage }}</span>
 				</span>
 			</div>
 		</div>
@@ -36,13 +36,16 @@
 		<div class="notification notification-warning" id="accent-reminder" ng-show="showAccentReminder">
 			Create accented characters by pressing the tilde key after the letter you want accented.
 		</div>
+		<div class="notification notification-warning" id="accent-reminder" ng-show="showAccentError">
+			Accents for this language aren't supported.
+		</div>
 
 		<div id="interval-div" ng-show="isRightGuess">
 			<div id="interval-left">
 				<div id="interval-title">Next Study Time:</div>
-				<span id="interval-current">{{ studyTime }}</span>
+				<span id="interval-current" class="icon icon-history">{{ studyTime }}</span>
 			</div>
-			<div id="interval-right">
+			<div id="interval-right" class="">
 				<div id="interval-title">Change To:</div>
 				<div class="interval">
 					<label for="interval1">
@@ -87,17 +90,3 @@
 
 	</div>
 </div>
-
-<script>
-/*
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-45478500-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-*/
-</script>
